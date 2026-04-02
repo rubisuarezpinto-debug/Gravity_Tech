@@ -3,11 +3,11 @@ const cors = require('cors');
 const errorHandler = require('./src/middlewares/errorHandler');
 
 // Routers
-const authRoutes = require('./src/routers/auth.routes');
-const productRoutes = require('./src/routers/products.routes');
-const cartRoutes = require('./src/routers/cart.routes');
-const orderRoutes = require('./src/routers/orders.routes');
-const adminRoutes = require('./src/routers/admin.routes');
+const authRouter = require('./src/routers/auth.router');
+const productRouter = require('./src/routers/products.router');
+const cartRouter = require('./src/routers/cart.router');
+const orderRouter = require('./src/routers/orders.router');
+const adminRouter = require('./src/routers/admin.router');
 
 const app = express();
 
@@ -16,12 +16,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ─── Routes ───────────────────────────────────────────────────────────────────
-app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/cart', cartRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/admin', adminRoutes);
+// ─── Routers ───────────────────────────────────────────────────────────────────
+app.use('/api/auth', authRouter);
+app.use('/api/products', productRouter);
+app.use('/api/cart', cartRouter);
+app.use('/api/orders', orderRouter);
+app.use('/api/admin', adminRouter);
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
