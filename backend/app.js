@@ -2,12 +2,12 @@ const express = require('express');
 const cors = require('cors');
 const errorHandler = require('./src/middlewares/errorHandler');
 
-// Routes
-const authRoutes = require('./src/routes/auth.routes');
-const productRoutes = require('./src/routes/products.routes');
-const cartRoutes = require('./src/routes/cart.routes');
-const orderRoutes = require('./src/routes/orders.routes');
-const adminRoutes = require('./src/routes/admin.routes');
+// Routers
+const authRoutes = require('./src/routers/auth.routes');
+const productRoutes = require('./src/routers/products.routes');
+const cartRoutes = require('./src/routers/cart.routes');
+const orderRoutes = require('./src/routers/orders.routes');
+const adminRoutes = require('./src/routers/admin.routes');
 
 const app = express();
 
