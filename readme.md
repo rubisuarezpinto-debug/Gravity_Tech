@@ -1,4 +1,4 @@
-# Gravity_Tech 🚀
+# Gravity_Tech 
 
 Gravity_Tech es una plataforma de tienda virtual desarrollada como proyecto académico. El enfoque principal está en comprender y construir la lógica subyacente sin depender de frameworks complejos en el cliente.
 
@@ -22,7 +22,7 @@ Gravity_Tech/
 │   │   ├── controllers/  # Controladores de la API (Lógica de autenticación, productos, órdenes)
 │   │   ├── middlewares/  # Validaciones (Autenticación JWT, RBAC de admin, control de errores)
 │   │   ├── models/       # Adaptadores de base de datos con consultas SQL puras (Módulo pg)
-│   │   ├── routes/       # Definición de Endpoints de Express
+│   │   ├── routers/      # Definición de Endpoints de Express
 │   │   └── utils/        # Funciones helpers (Hashing con bcrypt, firmado de JWT)
 │   ├── app.js            # Instanciación y middlewares globales de Express
 │   ├── server.js         # Entrada principal del servidor web (Puerto 3000)
