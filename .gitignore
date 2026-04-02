@@ -1,0 +1,19 @@
+# Dependencias de Node
+node_modules/
+
+# Logs 
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Variables de entorno
+.env
+.env.local
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Carpetas de editores o IDEs
+.vscode/
+.idea/
