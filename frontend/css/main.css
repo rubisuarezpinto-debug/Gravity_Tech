@@ -1,0 +1,16 @@
+/*
+ * =========================================================
+ * main.css — Estilos globales de la Aplicación
+ * =========================================================
+ *
+ * DESCRIPCIÓN:
+ *   Contiene los estilos globales y clases reutilizables.
+ *   Debe importar `variables.css`.
+ *
+ * LO QUE DEBE CONTENER:
+ *   - Estilos "reset" básicos para body, enlaces y el contenedor base.
+ *   - Clases utilitarias que conformen una especie de UI Kit simple, como:
+ *      .btn, .btn-primary, .btn-secondary, etc.
+ *      .form-group, .card, y .alert
+ *   - Clases utilitarias de texto y márgenes (ej. .text-center, .mt-4).
+ */
