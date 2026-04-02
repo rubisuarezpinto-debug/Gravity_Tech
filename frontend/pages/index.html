@@ -1,0 +1,33 @@
+<!--
+  =========================================================
+  index.html — Home / Catálogo de productos
+  =========================================================
+
+  DESCRIPCIÓN:
+    Página principal de TechStore. Muestra la lista de productos
+    disponibles con imagen, nombre, precio y botón "Agregar al carrito".
+
+  SECCIONES SUGERIDAS:
+    - <header>: navbar con logo, buscador y contador de carrito
+    - <main>: grid de tarjetas de productos
+    - <footer>: información de contacto
+
+  CONEXIÓN CON EL BACKEND:
+    1. Cargar productos al inicio:
+         const { products } = await api.getProducts();
+         → GET http://localhost:3000/api/products
+
+    2. Agregar al carrito (requiere login):
+         await api.addToCart({ product_id, quantity });
+         → POST http://localhost:3000/api/cart
+         → Header requerido: Authorization: Bearer <JWT>
+
+    3. Verificar sesión activa:
+         auth.requireAuth();   // redirige a login.html si no hay token
+
+  SCRIPTS A INCLUIR (en este orden):
+    <script src="../js/utils.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/cart.js"></script>
+-->

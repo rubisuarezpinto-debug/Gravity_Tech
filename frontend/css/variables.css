@@ -1,0 +1,16 @@
+/*
+ * =========================================================
+ * variables.css — Tokens de Diseño (Design Tokens)
+ * =========================================================
+ *
+ * DESCRIPCIÓN:
+ *   Archivo CSS que contiene todos los tokens de diseño de la aplicación.
+ *   Aquí se deben definir las custom properties CSS (`:root { ... }`)
+ *   que controlen.
+ *
+ * LO QUE DEBE CONTENER:
+ *   - Variables para la paleta de colores de TechStore.
+ *   - Tamaños de tipografía.
+ *   - Variables de espaciado.
+ *   - Sombras y bordes redondeados globales.
+ */
