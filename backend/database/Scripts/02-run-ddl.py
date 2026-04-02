@@ -1,6 +1,6 @@
 """
 02-run-ddl.py - Ejecuta los scripts DDL (crear tablas y alteraciones)
-Uso: python 02-run-ddl.py --sql-dir ../../ddl --user ecommerce_admin --password "***REMOVED***" --host localhost --port 5432 --database ecommerce_db
+Uso: python 02-run-ddl.py --sql-dir ../../ddl --user <user> --password <password> --host localhost --port 5432 --database ecommerce_db
 Este archivo es un alias del script original renombrado para consistencia.
 Si el script original ya maneja DDL, este archivo simplemente lo invoca.
 """

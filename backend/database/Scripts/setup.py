@@ -7,6 +7,9 @@ import subprocess
 import argparse
 import sys
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -48,11 +51,11 @@ def main():
             "script": "02-run-ddl.py",
             "extra_args": [
                 "--sql-dir", ddl_dir,
-                "--user", "ecommerce_admin",
-                "--password", "***REMOVED***",
+                "--user", os.getenv("DB_USER", "ecommerce_admin"),
+                "--password", os.getenv("DB_PASSWORD", ""),
                 "--host", args.host,
                 "--port", args.port,
-                "--database", "ecommerce_db"
+                "--database", os.getenv("DB_NAME", "ecommerce_db")
             ]
         },
        {
@@ -61,9 +64,9 @@ def main():
             "extra_args": [
                 "--host",       args.host,
                 "--port",       args.port,
-                "--user",       "ecommerce_admin",
-                "--password",   "***REMOVED***",
-                "--db-name",    "ecommerce_db",
+                "--user",       os.getenv("DB_USER", "ecommerce_admin"),
+                "--password",   os.getenv("DB_PASSWORD", ""),
+                "--db-name",    os.getenv("DB_NAME", "ecommerce_db"),
                 "--sql-dir",    os.path.join(SCRIPTS_DIR, "..", "seed")
             ]
         },
