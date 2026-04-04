@@ -1,0 +1,222 @@
+/* ════════════════════════════════════════
+   CHECKOUT MODAL
+════════════════════════════════════════ */
+
+/* Overlay */
+.checkout-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.65);
+  z-index: 400;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--spacing-lg) var(--spacing-md);
+  overflow-y: auto;
+}
+
+.checkout-overlay.open {
+  display: flex;
+}
+
+/* Modal */
+.checkout-modal {
+  background-color: #2a2a2a;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7);
+  width: 100%;
+  max-width: 500px;
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  animation: modalSlideIn 0.25s ease;
+  margin: auto;
+}
+
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Título del modal */
+.checkout-modal .checkout-title {
+  font-size: var(--font-size-md);
+  font-weight: 800;
+  color: var(--accent-cyan);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* ── Sección: Resumen del pedido ── */
+.checkout-section-title {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--accent-cyan);
+  margin-bottom: var(--spacing-sm);
+}
+
+.checkout-order-summary {
+  background-color: #333;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* Fila de item en resumen */
+.checkout-order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.checkout-order-item .item-qty {
+  color: var(--accent-cyan);
+  font-weight: 700;
+  margin: 0 var(--spacing-sm);
+}
+
+.checkout-order-item .item-subtotal {
+  color: var(--price-color);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Separador */
+.checkout-divider {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: var(--spacing-xs) 0;
+}
+
+/* Fila total */
+.checkout-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--font-size-md);
+  font-weight: 800;
+  color: var(--text-color);
+}
+
+.checkout-total-row .total-value {
+  color: var(--price-color);
+}
+
+/* ── Sección: Datos de envío ── */
+.checkout-shipping {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Banner de email del usuario */
+.checkout-user-email {
+  padding: 10px var(--spacing-md);
+  background-color: transparent;
+  border: 1.5px solid var(--accent-cyan);
+  border-radius: var(--radius-sm);
+  color: var(--accent-cyan);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+/* Grid de campos */
+.checkout-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.checkout-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+.checkout-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.checkout-field label {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.checkout-field input,
+.checkout-field select {
+  padding: 10px var(--spacing-md);
+  background-color: #3a3a3a;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  outline: none;
+  transition: border-color var(--transition-fast);
+  width: 100%;
+}
+
+.checkout-field input::placeholder {
+  color: var(--text-muted);
+}
+
+.checkout-field input:focus,
+.checkout-field select:focus {
+  border-color: var(--accent-cyan);
+}
+
+.checkout-field select {
+  -webkit-appearance: auto;
+  appearance: auto;
+  cursor: pointer;
+}
+
+/* Campo de número de tarjeta (deshabilitado hasta elegir método) */
+.checkout-field input:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Botón confirmar ── */
+.btn-confirm-purchase {
+  width: 100%;
+  padding: 14px;
+  background-color: #27ae60;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.btn-confirm-purchase:hover {
+  background-color: #2ecc71;
+  transform: translateY(-1px);
+}
+
+.btn-confirm-purchase:active {
+  transform: translateY(0);
+}
+
+/* ── Responsive ── */
+@media (max-width: 520px) {
+  .checkout-row {
+    grid-template-columns: 1fr;
+  }
+
+  .checkout-modal {
+    padding: var(--spacing-md);
+  }
+}
