@@ -31,3 +31,223 @@
     <script src="../js/api.js"></script>
     <script src="../js/cart.js"></script>
 -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gravity Tech 💻</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/cart.css">
+  <link rel="stylesheet" href="../css/checkout.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <span class="logo-title">Gravity Tech 💻</span>
+      <span class="logo-subtitle">Lo mejor en tecnología</span>
+    </div>
+    <div class="actions">
+      <a href="login.html" class="btn-login" id="btn-login-header">🔐 Iniciar sesión</a>
+      <a href="#" class="btn-cart">🛒 Carrito (<span id="cart-count">0</span>)</a>
+    </div>
+  </header>
+
+  <!-- Barra de búsqueda y filtros -->
+  <section class="search-section">
+    <input type="text" id="search-input" class="search-input" placeholder="Buscar artículo...">
+    <button id="search-btn" class="btn-search">🔵 Buscar</button>
+    <button id="show-all-btn" class="btn-show-all">🔄 Mostrar todo</button>
+    <span class="filter-label">Categoría:</span>
+    <select id="filter-category">
+      <option value="">Todas</option>
+      <option value="Computadores">Computadores</option>
+      <option value="Celulares">Celulares</option>
+      <option value="Accesorios">Accesorios</option>
+      <option value="Videojuegos">Videojuegos</option>
+    </select>
+    <span class="filter-label">Precio:</span>
+    <select id="filter-price">
+      <option value="">Rango</option>
+      <option value="low">Menor a $1.000.000</option>
+      <option value="mid">$1.000.000 - $3.000.000</option>
+      <option value="high">Mayor a $3.000.000</option>
+    </select>
+  </section>
+
+  <!-- Grid de productos -->
+  <main class="products" id="products-container"></main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2026 Gravity Tech. Todos los derechos reservados.</p>
+    <p>Contacto: soporte@gravitytech.com | Tel: +57 300 123 4567</p>
+  </footer>
+
+  <!-- Cart sidebar -->
+  <div class="cart-overlay" id="cart-overlay"></div>
+  <aside class="cart-sidebar" id="cart-sidebar">
+    <div class="cart-header">
+      <h2>🛒 Carrito de Compras</h2>
+      <button class="cart-close-btn" id="cart-close-btn" aria-label="Cerrar carrito">✕</button>
+    </div>
+    <div class="cart-items" id="cart-items-list">
+      <p class="cart-empty">Tu carrito está vacío.</p>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-summary-row">
+        <span>Total de artículos:</span>
+        <span id="cart-item-count">0</span>
+      </div>
+      <div class="cart-total-row">
+        <span class="cart-total-label">Total a pagar:</span>
+        <span class="cart-total-value" id="cart-total-price">$ 0 COP</span>
+      </div>
+      <button class="btn-checkout" id="btn-checkout">💳 Finalizar Compra</button>
+    </div>
+  </aside>
+
+  <!-- Checkout modal -->
+  <div class="checkout-overlay" id="checkout-overlay">
+    <div class="checkout-modal" role="dialog" aria-modal="true">
+      <h2 class="checkout-title">💳 Finalizar Compra</h2>
+
+      <section>
+        <p class="checkout-section-title">Resumen del pedido</p>
+        <div class="checkout-order-summary">
+          <div id="checkout-items-list"></div>
+          <hr class="checkout-divider">
+          <div class="checkout-total-row">
+            <span>Total:</span>
+            <span class="total-value" id="checkout-total">$ 0</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="checkout-shipping">
+        <p class="checkout-section-title">Método de pago</p>
+        <div class="checkout-user-email" id="checkout-user-email">
+          Compra asociada a: cargando...
+        </div>
+        <div class="checkout-fields">
+          <div class="checkout-field">
+            <label for="checkout-payment">Método de pago *</label>
+            <select id="checkout-payment" required>
+              <option value="">Seleccionar</option>
+              <option value="card">Tarjeta de crédito / débito</option>
+              <option value="transfer">Transferencia bancaria</option>
+              <option value="cash">Pago contra entrega</option>
+            </select>
+          </div>
+          <div class="checkout-field">
+            <label for="checkout-payment-data">Referencia / Número de tarjeta</label>
+            <input
+              type="text"
+              id="checkout-payment-data"
+              placeholder="Número tarjeta"
+              disabled
+            >
+          </div>
+        </div>
+      </section>
+
+      <button class="btn-confirm-purchase" id="btn-confirm-purchase">
+        Confirmar compra - <span id="checkout-btn-total">$0</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../js/utils.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/cart.js"></script>
+  <script src="../js/checkout.js"></script>
+  <script>
+    async function loadProducts(filters = {}) {
+      const container = document.getElementById('products-container');
+      container.innerHTML = '<p style="color:var(--text-muted);padding:var(--spacing-lg)">Cargando productos...</p>';
+
+      try {
+        const { products } = await api.getProducts();
+
+        let filtered = products;
+
+        if (filters.search) {
+          const q = filters.search.toLowerCase();
+          filtered = filtered.filter(p =>
+            p.name.toLowerCase().includes(q) ||
+            p.description?.toLowerCase().includes(q)
+          );
+        }
+
+        if (filters.price === 'low')  filtered = filtered.filter(p => p.price < 1000000);
+        if (filters.price === 'mid')  filtered = filtered.filter(p => p.price >= 1000000 && p.price <= 3000000);
+        if (filters.price === 'high') filtered = filtered.filter(p => p.price > 3000000);
+
+        container.innerHTML = '';
+
+        if (!filtered.length) {
+          container.innerHTML = '<p style="color:var(--text-muted);padding:var(--spacing-lg)">No se encontraron productos.</p>';
+          return;
+        }
+
+        filtered.forEach(product => {
+          const card = document.createElement('section');
+          card.classList.add('product');
+          card.innerHTML = `
+            <div class="product-img-wrapper">
+              <img
+                src="${product.image_url}"
+                alt="${product.name}"
+                onerror="this.src='https://placehold.co/300x225/3a3a3a/00c8e0?text=Sin+imagen'"
+              >
+            </div>
+            <h2>${product.name}</h2>
+            <p>${product.description || ''}</p>
+            <div class="product-meta">
+              <span class="badge-stock">${product.stock} disponibles</span>
+            </div>
+            <span class="price">$${Number(product.price).toLocaleString('es-CO')} COP</span>
+            <button class='btn-add-cart' onclick='addToCart(${product.id})'>🛒 Agregar al carrito</button>
+          `;
+          container.appendChild(card);
+        });
+
+      } catch (err) {
+        container.innerHTML = '<p style="color:var(--text-muted);padding:var(--spacing-lg)">Error al cargar productos.</p>';
+        console.error(err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProducts();
+
+      document.getElementById('search-btn').addEventListener('click', () => {
+        loadProducts({
+          search: document.getElementById('search-input').value,
+          price:  document.getElementById('filter-price').value,
+        });
+      });
+
+      document.getElementById('show-all-btn').addEventListener('click', () => {
+        document.getElementById('search-input').value = '';
+        document.getElementById('filter-category').value = '';
+        document.getElementById('filter-price').value = '';
+        loadProducts();
+      });
+
+      document.getElementById('filter-price').addEventListener('change', () => {
+        loadProducts({
+          search: document.getElementById('search-input').value,
+          price:  document.getElementById('filter-price').value,
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>
