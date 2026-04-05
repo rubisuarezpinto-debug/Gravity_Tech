@@ -404,3 +404,78 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+/* ════════════════════════════════════════
+   ADMIN — Header y tarjetas
+════════════════════════════════════════ */
+ 
+/* Nombre del admin en el header (no clickeable) */
+.btn-admin-name {
+  padding: 9px var(--spacing-md);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  white-space: nowrap;
+}
+ 
+/* Botones de acción admin en el header (rojo) */
+.btn-admin {
+  padding: 9px var(--spacing-md);
+  background-color: #c0392b;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color var(--transition-fast);
+}
+ 
+.btn-admin:hover {
+  background-color: #e74c3c;
+}
+ 
+/* Botón cerrar sesión admin (outline) */
+.btn-logout {
+  padding: 9px var(--spacing-md);
+  background-color: transparent;
+  color: #fff;
+  border: 1.5px solid rgba(255, 255, 255, 0.8);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--transition-fast);
+}
+ 
+.btn-logout:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+ 
+/* Botón "Vista administrador" en tarjetas (rojo, ancho completo) */
+.btn-admin-card {
+  display: block;
+  width: 100%;
+  padding: 10px var(--spacing-md);
+  background-color: #c0392b;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  margin-top: auto;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+  letter-spacing: 0.2px;
+}
+ 
+.btn-admin-card:hover {
+  background-color: #e74c3c;
+  transform: translateY(-1px);
+}
+ 

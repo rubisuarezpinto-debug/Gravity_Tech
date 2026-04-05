@@ -45,22 +45,27 @@
  * Auth: JWT almacenado en localStorage bajo la clave 'token'
  */
 
+/**
+ * =========================================================
+ * api.js — Capa de comunicación con el backend
+ * =========================================================
+ * Depende de auth.js para manejo de token y sesión.
+ * auth.js debe cargarse ANTES que este archivo.
+ */
+
 const BASE_URL = 'http://localhost:3000/api';
 
-// ── Helper: headers con JWT si existe ────────────────────
+// ── Helper: headers con JWT ───────────────────────────────
 function authHeaders() {
-  const token = localStorage.getItem('token');
+  const token = auth.getToken();
   const headers = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
   return headers;
 }
 
-// ── Helper: fetch con manejo de errores centralizado ─────
+// ── Helper: fetch centralizado ────────────────────────────
 async function request(method, path, body = null) {
-  const options = {
-    method,
-    headers: authHeaders(),
-  };
+  const options = { method, headers: authHeaders() };
   if (body) options.body = JSON.stringify(body);
 
   const res = await fetch(`${BASE_URL}${path}`, options);
@@ -76,104 +81,79 @@ async function request(method, path, body = null) {
 // ════════════════════════════════════════
 // AUTH
 // ════════════════════════════════════════
-
-const auth = {
-  /** POST /api/auth/register */
-  register: (data) => request('POST', '/auth/register', data),
-
-  /** POST /api/auth/login → guarda el token automáticamente */
-  login: async ({ email, password }) => {
-    const data = await request('POST', '/auth/login', { email, password });
-    if (data.token) localStorage.setItem('token', data.token);
-    return data;
+const api = {
+  /** POST /api/auth/register → guarda sesión automáticamente */
+  register: async (data) => {
+    const result = await request('POST', '/auth/register', data);
+    if (result.token) auth.setSession(result.token, result.user);
+    return result;
   },
 
-  /** GET /api/auth/me → devuelve el usuario autenticado */
+  /** POST /api/auth/login → guarda sesión automáticamente */
+  login: async (data) => {
+    const result = await request('POST', '/auth/login', data);
+    if (result.token) auth.setSession(result.token, result.user);
+    return result;
+  },
+
+  /** GET /api/auth/me */
   me: () => request('GET', '/auth/me'),
 
-  /** Cierra sesión eliminando el token */
-  logout: () => localStorage.removeItem('token'),
+  // ════════════════════════════════════════
+  // PRODUCTOS
+  // ════════════════════════════════════════
 
-  /** Devuelve el payload del JWT sin llamar al servidor */
-  getUser: () => {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload;
-    } catch {
-      return null;
-    }
-  },
-
-  /** True si hay token válido */
-  isLoggedIn: () => !!localStorage.getItem('token'),
-};
-
-// ════════════════════════════════════════
-// PRODUCTOS
-// ════════════════════════════════════════
-
-const api = {
-  /** GET /api/products → { products: [...] } */
+  /** GET /api/products */
   getProducts: () => request('GET', '/products'),
 
-  /** GET /api/products/:id → { product: {...} } */
+  /** GET /api/products/:id */
   getProduct: (id) => request('GET', `/products/${id}`),
 
   // ════════════════════════════════════════
-  // CARRITO  (requieren JWT)
+  // CARRITO
   // ════════════════════════════════════════
 
-  /**
-   * GET /api/cart
-   * Devuelve: { items: [{ id, quantity, product_id, name, price, image_url, subtotal }] }
-   */
+  /** GET /api/cart */
   getCart: () => request('GET', '/cart'),
 
-  /**
-   * POST /api/cart
-   * Body: { product_id, quantity }
-   */
+  /** POST /api/cart — body: { product_id, quantity } */
   addToCart: (product_id, quantity = 1) =>
     request('POST', '/cart', { product_id, quantity }),
 
-  /**
-   * PUT /api/cart/:itemId
-   * Body: { quantity }
-   */
+  /** PUT /api/cart/:itemId — body: { quantity } */
   updateCartItem: (itemId, { quantity }) =>
     request('PUT', `/cart/${itemId}`, { quantity }),
 
-  /**
-   * DELETE /api/cart/:itemId
-   */
+  /** DELETE /api/cart/:itemId */
   removeCartItem: (itemId) => request('DELETE', `/cart/${itemId}`),
 
-  /**
-   * DELETE /api/cart
-   */
+  /** DELETE /api/cart */
   clearCart: () => request('DELETE', '/cart'),
 
   // ════════════════════════════════════════
-  // ÓRDENES  (requieren JWT)
+  // ÓRDENES
   // ════════════════════════════════════════
 
-  /**
-   * POST /api/orders/checkout
-   * Body: { payment_method }
-   * Crea la orden, registra el pago y vacía el carrito.
-   */
+  /** POST /api/orders/checkout — body: { payment_method } */
   createOrder: ({ payment_method }) =>
     request('POST', '/orders/checkout', { payment_method }),
 
-  /** GET /api/orders → { orders: [...] } */
+  /** GET /api/orders */
   getMyOrders: () => request('GET', '/orders'),
 
-  /** GET /api/orders/:id → { order: {...} } */
+  /** GET /api/orders/:id */
   getOrder: (id) => request('GET', `/orders/${id}`),
+  
+  // ════════════════════════════════════════
+  // ADMIN — Órdenes
+  // ════════════════════════════════════════
+ 
+  /** GET /api/admin/orders */
+  getAllOrders: () => request('GET', '/admin/orders'),
+ 
+  /** PATCH /api/admin/orders/:id/status */
+  updateOrderStatus: (id, status) =>
+    request('PATCH', `/admin/orders/${id}/status`, { status }),
 };
 
-// Exponer globalmente
-window.api  = api;
-window.auth = auth;
+window.api = api;
