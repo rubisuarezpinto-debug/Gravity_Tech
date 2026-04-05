@@ -39,7 +39,7 @@ async function renderCheckoutSummary() {
       row.innerHTML = `
         <span>${item.name}</span>
         <span class="item-qty">x${item.quantity}</span>
-        <span class="item-subtotal">$${Number(item.subtotal).toLocaleString('es-CO')}</span>
+        <span class="item-subtotal">$${formatPrice(item.subtotal)}</span>
       `;
       listEl.appendChild(row);
     });

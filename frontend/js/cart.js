@@ -92,8 +92,8 @@ async function renderCart() {
           onerror="this.src='https://placehold.co/80x80/3a3a3a/00c8e0?text=IMG'"
         >
         <span class="cart-item-name">${item.name}</span>
-        <span class="cart-item-price">$${Number(item.subtotal).toLocaleString('es-CO')} COP</span>
-        <span class="cart-item-stock">Precio unitario: $${Number(item.price).toLocaleString('es-CO')}</span>
+        <span class="cart-item-price">$${formatPrice(item.subtotal)} </span>
+        <span class="cart-item-stock">Precio unitario: $${formatPrice(item.price)}</span>
         <div class="cart-item-controls">
           <div class="qty-controls">
             <button class="qty-btn qty-minus" onclick='changeQuantity(${item.id}, ${item.quantity - 1})'>−</button>
