@@ -8,6 +8,7 @@ const productRouter = require('./src/routers/products.router');
 const cartRouter = require('./src/routers/cart.router');
 const orderRouter = require('./src/routers/orders.router');
 const adminRouter = require('./src/routers/admin.router');
+const reviewRouter = require('./src/routers/reviews.router');
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use('/api/products', productRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/orders', orderRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/reviews', reviewRouter);
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
