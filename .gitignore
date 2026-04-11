@@ -39,6 +39,7 @@ Thumbs.db
 # Carpetas de editores o IDEs
 .vscode/
 .idea/
+.claude/
 *.swp
 *.swo
 *~
