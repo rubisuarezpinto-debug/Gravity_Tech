@@ -40,6 +40,9 @@ Thumbs.db
 .vscode/
 .idea/
 .claude/
+
+# Archivos temporales de ramas
+branches*.txt
 *.swp
 *.swo
 *~
