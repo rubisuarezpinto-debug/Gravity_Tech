@@ -9,9 +9,9 @@ import sys
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
-
 SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
+env_path = os.path.abspath(os.path.join(SCRIPTS_DIR, '..', '..', '.env'))
+load_dotenv(dotenv_path=env_path)
 
 def run_script(script_name, args_list):
     script_path = os.path.join(SCRIPTS_DIR, script_name)

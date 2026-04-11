@@ -1,0 +1,21 @@
+2026-04-05 19:17:59,444 - sql_pipeline - INFO - Starting SQL Pipeline
+2026-04-05 19:17:59,444 - sql_pipeline - INFO - Using SQL directory: c:\Users\jhoan\OneDrive\Documentos\Desarrollo orientado a plataformas\Tienda virtual\backend\database\seed
+2026-04-05 19:17:59,500 - sql_pipeline - INFO - Connected to PostgreSQL (attempt 1)
+2026-04-05 19:17:59,502 - sql_pipeline - INFO - Schema exists: True
+
+Processing SQL files:   0%|          | 0/18 [00:00<?, ?it/s]
+Processing SQL files:   0%|          | 0/18 [00:00<?, ?it/s, file=01-INSERT-CATEG...]
+
+Processing 01-INSERT-CATEGORIAS.sql:   0%|          | 0/1 [00:00<?, ?it/s][A
+
+Processing 01-INSERT-CATEGORIAS.sql:   0%|          | 0/1 [00:00<?, ?it/s, status=ERROR][A2026-04-05 19:17:59,537 - sql_pipeline - ERROR - Error in statement: ERROR:  no existe la relación «categories»
+LINE 1: INSERT INTO categories (name) VALUES ('Tecnología'), ('Calza...
+                    ^
+
+
+
+                                                                                        [A2026-04-05 19:17:59,537 - sql_pipeline - ERROR - Failed to execute 01-INSERT-CATEGORIAS.sql
+
+Processing SQL files:   0%|          | 0/18 [00:00<?, ?it/s, file=01-INSERT-CATEG...]
+2026-04-05 19:17:59,538 - sql_pipeline - INFO - Pipeline completed. 0/18 files processed successfully
+2026-04-05 19:17:59,538 - sql_pipeline - INFO - Database connection closed
