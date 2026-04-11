@@ -1,65 +1,123 @@
 const User = require('../models/User');
 const { sign } = require('../utils/jwt');
+const { sanitizeUser, createSafeResponse } = require('../utils/sanitizer');
 
-/** POST /api/auth/register */
+/**
+ * ═══════════════════════════════════════════════════════════════════════════
+ * POST /api/auth/register - Register a new user
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 const register = async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
+    // req.body is already validated by validateRequest middleware
+    const { email, password, first_name, last_name } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: 'Todos los campos son requeridos' });
-    }
-
+    // Check if email already exists
     const existing = await User.findByEmail(email);
     if (existing) {
-      return res.status(409).json({ message: 'El email ya está registrado' });
+      return res.status(409).json({
+        success: false,
+        error: 'Email is already registered',
+      });
     }
 
-    const user = await User.create(name, email, password);
+    // Create new user
+    const user = await User.create(first_name, last_name, email, password);
+
+    // Generate JWT token
     const token = sign({ id: user.id, role: user.role });
 
-    res.status(201).json({ user, token });
-  } catch (err) {
-    next(err);
+    // Sanitize user object before sending
+    const safeUser = sanitizeUser(user);
+
+    return res.status(201).json({
+      success: true,
+      data: {
+        user: safeUser,
+        token,
+      },
+    });
+  } catch (error) {
+    next(error);
   }
 };
 
-/** POST /api/auth/login */
+/**
+ * ═══════════════════════════════════════════════════════════════════════════
+ * POST /api/auth/login - Authenticate user with email and password
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 const login = async (req, res, next) => {
   try {
+    // req.body is already validated by validateRequest middleware
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email y contraseña requeridos' });
-    }
-
+    // Find user by email
     const user = await User.findByEmail(email);
     if (!user) {
-      return res.status(401).json({ message: 'Credenciales incorrectas' });
+      // Use generic message to prevent email enumeration attacks
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid email or password',
+      });
     }
 
+    // Verify password
     const valid = await User.verifyPassword(password, user.password_hash);
     if (!valid) {
-      return res.status(401).json({ message: 'Credenciales incorrectas' });
+      // Use same generic message for both cases
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid email or password',
+      });
     }
 
+    // Generate JWT token
     const token = sign({ id: user.id, role: user.role });
-    const { password_hash, ...safeUser } = user;
 
-    res.json({ user: safeUser, token });
-  } catch (err) {
-    next(err);
+    // Sanitize user object before sending
+    const safeUser = sanitizeUser(user);
+
+    return res.json({
+      success: true,
+      data: {
+        user: safeUser,
+        token,
+      },
+    });
+  } catch (error) {
+    next(error);
   }
 };
 
-/** GET /api/auth/me */
+/**
+ * ═══════════════════════════════════════════════════════════════════════════
+ * GET /api/auth/me - Get current authenticated user
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 const me = async (req, res, next) => {
   try {
+    // req.user is set by authenticate middleware
     const user = await User.findById(req.user.id);
-    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
-    res.json({ user });
-  } catch (err) {
-    next(err);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    // Sanitize user object before sending
+    const safeUser = sanitizeUser(user);
+
+    return res.json({
+      success: true,
+      data: {
+        user: safeUser,
+      },
+    });
+  } catch (error) {
+    next(error);
   }
 };
 

@@ -1,6 +1,9 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 const errorHandler = require('./src/middlewares/errorHandler');
+const securityConfig = require('./src/config/security');
+const { globalLimiter, authLimiter, registerLimiter, orderLimiter } = require('./src/middlewares/rateLimiter');
 
 // Routers
 const authRouter = require('./src/routers/auth.router');
@@ -12,10 +15,19 @@ const reviewRouter = require('./src/routers/reviews.router');
 
 const app = express();
 
-// ─── Global Middlewares ────────────────────────────────────────────────────────
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// ─── Security Middlewares (ORDER MATTERS) ──────────────────────────────────────
+// 1. Helmet: Set HTTP security headers
+app.use(helmet(securityConfig.helmet));
+
+// 2. CORS: Control cross-origin requests
+app.use(cors(securityConfig.cors));
+
+// 3. Body parsing
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// 4. Global Rate Limiting: Protect against brute force
+app.use(globalLimiter);
 
 // ─── Routers ───────────────────────────────────────────────────────────────────
 app.use('/api/auth', authRouter);

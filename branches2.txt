@@ -1,0 +1,7 @@
+﻿  origin/HEAD -> origin/main
+  origin/QA
+  origin/dev_Danna
+  origin/dev_Jhoan
+  origin/dev_Jhon
+  origin/dev_Rubi
+  origin/main
