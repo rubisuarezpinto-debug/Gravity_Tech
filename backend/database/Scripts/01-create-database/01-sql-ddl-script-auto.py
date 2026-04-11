@@ -7,12 +7,6 @@ import psycopg2
 import sys
 import os
 import argparse
-import argparse
-import os
-from dotenv import load_dotenv
-
-env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
-load_dotenv(dotenv_path=env_path)
 
 # ============================================
 # CONFIGURATION - EDIT HERE ONLY
@@ -65,15 +59,6 @@ def parse_sql_file(filepath):
         print(f"Warning: Using latin-1 encoding for {filepath}")
         with open(filepath, 'r', encoding='latin-1') as f:
             sql = f.read()
-            
-    # Inject variables
-    app_user = os.getenv("DB_USER", "ecommerce_admin")
-    app_pass = os.getenv("DB_PASSWORD", "")
-    app_db = os.getenv("DB_NAME", "ecommerce_db")
-    
-    sql = sql.replace("<DB_USER>", app_user)
-    sql = sql.replace("<DB_PASSWORD>", app_pass)
-    sql = sql.replace("<DB_NAME>", app_db)
     
     statements = []
     buffer = ""
