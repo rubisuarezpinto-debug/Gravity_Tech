@@ -1,0 +1,1 @@
+INSERT INTO ecommerce.carrito (id_usuario) VALUES (2), (3), (4);
