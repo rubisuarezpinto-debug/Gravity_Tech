@@ -350,4 +350,16 @@ formato. Se eliminaron los marcadores de conflicto.
 
 ---
 
+### 24. Las reseñas en product.html no llamaban al backend
+
+**Qué estaba mal:** La función `loadReviews` usaba `product.reviews || []`
+pero el endpoint `GET /api/reviews/product/:id` existe y nunca se llamaba.
+La sección siempre mostraba "Este producto aún no tiene reseñas".
+
+**Qué se hizo:** Se reemplazó la línea por una llamada real a
+`api.getReviews(productId)` y se usa el promedio calculado por el backend
+(`stats.promedio`) en lugar de calcularlo manualmente en el frontend.
+
+**Archivo:** `frontend/product.html`
+
 *Última actualización: 12 de abril de 2026*
