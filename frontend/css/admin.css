@@ -108,8 +108,6 @@
   margin-bottom: var(--spacing-xs);
 }
 
-<<<<<<< HEAD
-=======
 .btn-item-img {
   width: 34px;
   height: 34px;
@@ -130,7 +128,6 @@
   transform: scale(1.05);
 }
 
->>>>>>> origin/dev_Danna
 /* Grid de campos del formulario */
 .admin-fields {
   display: flex;
