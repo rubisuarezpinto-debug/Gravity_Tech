@@ -388,4 +388,17 @@ exactos de las categorías en la base de datos.
 
 **Archivo:** `frontend/index.html`
 
+### 27. Constraint UNIQUE aplicado en tabla carrito_item
+
+**Qué estaba mal:** El modelo `Cart.js` usa `ON CONFLICT (id_carrito, id_producto)`
+para hacer upsert al agregar productos al carrito, pero la tabla no tenía el
+constraint UNIQUE requerido. Esto causaba un error de base de datos cada vez
+que se intentaba agregar un producto que ya estaba en el carrito.
+
+**Qué se hizo:** Se ejecutó el script `backend/database/ddl/04-migrations.sql`
+directamente en la base de datos, agregando el constraint
+`uq_carrito_item_carrito_producto`.
+
+**Archivo:** `backend/database/ddl/04-migrations.sql`
+
 *Última actualización: 12 de abril de 2026*
