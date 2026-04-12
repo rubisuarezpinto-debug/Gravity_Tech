@@ -362,4 +362,17 @@ La sección siempre mostraba "Este producto aún no tiene reseñas".
 
 **Archivo:** `frontend/product.html`
 
+### 25. Campo de marca faltante en formulario de administrador
+
+**Qué estaba mal:** `admin.js` buscaba `document.getElementById('admin-brand')`
+pero el formulario en `admin-products.html` no tenía ese campo. Esto causaba
+un error silencioso al crear o editar productos.
+
+**Qué se hizo:** Se agregó el campo `<select id="admin-brand">` con las marcas
+reales de la base de datos (Sony, Nike, Samsung, Apple, Adidas, Logitech,
+Xiaomi, LG). También se corrigieron las opciones de categoría para que
+coincidan con los nombres reales en la tabla `ecommerce.categoria`.
+
+**Archivo:** `frontend/admin-products.html`
+
 *Última actualización: 12 de abril de 2026*
