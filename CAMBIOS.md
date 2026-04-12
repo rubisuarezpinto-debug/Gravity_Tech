@@ -350,6 +350,9 @@ formato. Se eliminaron los marcadores de conflicto.
 
 ---
 
+
+---
+
 ### 24. Las reseñas en product.html no llamaban al backend
 
 **Qué estaba mal:** La función `loadReviews` usaba `product.reviews || []`
@@ -361,6 +364,11 @@ La sección siempre mostraba "Este producto aún no tiene reseñas".
 (`stats.promedio`) en lugar de calcularlo manualmente en el frontend.
 
 **Archivo:** `frontend/product.html`
+
+---
+
+
+---
 
 ### 25. Campo de marca faltante en formulario de administrador
 
@@ -375,6 +383,11 @@ coincidan con los nombres reales en la tabla `ecommerce.categoria`.
 
 **Archivo:** `frontend/admin-products.html`
 
+---
+
+
+---
+
 ### 26. Opciones del filtro de categoría no coincidían con la base de datos
 
 **Qué estaba mal:** El `<select id="filter-category">` en `index.html` tenía
@@ -387,6 +400,10 @@ para ninguna opción excepto "Accesorios".
 exactos de las categorías en la base de datos.
 
 **Archivo:** `frontend/index.html`
+---
+
+
+---
 
 ### 27. Constraint UNIQUE aplicado en tabla carrito_item
 
@@ -400,5 +417,21 @@ directamente en la base de datos, agregando el constraint
 `uq_carrito_item_carrito_producto`.
 
 **Archivo:** `backend/database/ddl/04-migrations.sql`
+
+---
+
+
+---
+
+### 28. Credencial hardcodeada en execute_command.sh
+
+**Qué estaba mal:** El archivo `execute_command.sh` tenía la contraseña
+de la base de datos escrita directamente en el código (`--password "ec2026"`),
+lo que representa un riesgo de seguridad si el archivo es versionado en Git.
+
+**Qué se hizo:** Se reemplazó la contraseña hardcodeada por una variable
+de entorno `${DB_PASSWORD}` que se lee desde el archivo `.env`.
+
+**Archivo:** `backend/database/Scripts/02-insert-data/execute_command.sh`
 
 *Última actualización: 12 de abril de 2026*
