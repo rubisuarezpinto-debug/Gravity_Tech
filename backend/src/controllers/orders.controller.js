@@ -46,7 +46,7 @@ const checkout = async (req, res, next) => {
     const order = await Order.create(req.user.id, orderItems, total);
     await Payment.create(order.id, total, payment_method || 'card');
     await Cart.clearCart(req.user.id);
-    await Order.updateStatus(order.id, 'paid');
+    await Order.updateStatus(order.id, 'Pago Confirmado');
 
     res.status(201).json({ message: 'Orden creada con éxito', order });
   } catch (err) {
