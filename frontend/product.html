@@ -292,7 +292,7 @@
       // pero la tabla RESENA existe en el ER. Por ahora usamos
       // los datos del producto si vienen con reseñas incluidas,
       // o mostramos la sección vacía lista para cuando el endpoint exista.
-      const reviews = product.reviews || [];
+     const { reviews, stats } = await api.getReviews(productId);
 
       reviewsSection.style.display = 'block';
 
@@ -302,7 +302,7 @@
       }
 
       // Calcular promedio
-      const avg = reviews.reduce((sum, r) => sum + r.puntuacion, 0) / reviews.length;
+      const avg = Number(stats?.promedio || 0);
 
       // Actualizar rating en la info
       if (ratingEl) {
