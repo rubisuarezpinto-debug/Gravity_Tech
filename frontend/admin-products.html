@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Productos | Admin Gravity Tech</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="logo">
+      <a href="index.html" style="text-decoration:none">
+        <span class="logo-title">Gravity Tech 💻</span>
+      </a>
+    </div>
+    <div class="actions">
+       <a href="admin-orders.html" class="btn-admin">📦 Ver Pedidos</a>
+       <a href="index.html" class="btn-logout">Inicio</a>
+    </div>
+  </header>
+
+  <main class="admin-page-container">
+    <div class="admin-header-title">
+      <h1>⚙ Gestión de Inventario</h1>
+      <button class="admin-close-btn" id="admin-close-btn">Volver</button>
+    </div>
+
+    <div class="admin-body">
+      <!-- Columna izquierda: formulario -->
+      <div class="admin-form-col">
+        <p class="form-section-title">➕ Producto Nuevo / Edición</p>
+        <div class="admin-error-msg" id="admin-form-error"></div>
+
+        <div class="admin-fields">
+          <div class="admin-row">
+            <div class="admin-field">
+              <label for="admin-title">Título *</label>
+              <input type="text" id="admin-title" placeholder="Ej. Teclado Mecánico">
+            </div>
+            <div class="admin-field">
+              <label for="admin-category">Categoría *</label>
+              <select id="admin-category">
+                <option value="">Seleccionar...</option>
+                <option value="1">Computadores</option>
+                <option value="2">Celulares</option>
+                <option value="3">Accesorios</option>
+                <option value="4">Videojuegos</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="admin-field">
+            <label for="admin-description">Descripción</label>
+            <textarea id="admin-description" rows="3"></textarea>
+          </div>
+
+          <div class="admin-row">
+            <div class="admin-field">
+              <label for="admin-stock">Stock *</label>
+              <input type="number" id="admin-stock" min="0">
+            </div>
+            <div class="admin-field">
+              <label for="admin-price">Precio (COP) *</label>
+              <input type="number" id="admin-price" min="0">
+            </div>
+          </div>
+
+          <div class="admin-field">
+            <label for="admin-image">URL de imagen</label>
+            <input type="url" id="admin-image">
+          </div>
+        </div>
+
+        <button class="btn-admin-create" id="btn-admin-create">Crear Producto</button>
+      </div>
+
+      <!-- Columna derecha: lista -->
+      <div class="admin-list-col">
+        <p class="admin-list-title">
+          📋 Artículos en Catálogo <span id="admin-product-count"></span>
+        </p>
+        <div id="admin-products-list">
+          <p class="admin-list-empty">Cargando catálogo...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,397 @@
+/* ════════════════════════════════════════
+   ADMIN MODAL — Panel de administrador
+════════════════════════════════════════ */
+
+/* Overlay */
+.admin-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 400;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--spacing-lg) var(--spacing-md);
+  overflow-y: auto;
+}
+
+.admin-overlay.open {
+  display: flex;
+}
+
+/* Modal */
+.admin-modal {
+  background-color: #2a2a2a;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7);
+  width: 100%;
+  max-width: 900px;
+  overflow: hidden;
+  animation: adminModalIn 0.25s ease;
+  margin: auto;
+}
+
+@keyframes adminModalIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Banner rojo del título */
+.admin-modal .admin-banner {
+  background: linear-gradient(
+    to right,
+    var(#740000),
+    var(#b00000)
+  );
+  padding: var(--spacing-md) var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.admin-modal .admin-banner h2 {
+  font-size: var(--font-size-lg);
+  font-weight: 800;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.admin-modal .admin-close-btn {
+  width: 32px;
+  height: 32px;
+  background-color: rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.4);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background-color var(--transition-fast);
+}
+
+.admin-modal .admin-close-btn:hover {
+  background-color: rgba(255,255,255,0.3);
+}
+
+/* Cuerpo: dos columnas */
+.admin-modal .admin-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  min-height: 400px;
+}
+
+/* ── Columna izquierda: formulario ── */
+.admin-form-col {
+  padding: var(--spacing-lg);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.admin-form-col .form-section-title {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
+}
+
+<<<<<<< HEAD
+=======
+.btn-item-img {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #2980b9;
+  color: #fff;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.btn-item-img:hover {
+  background-color: #3498db;
+  transform: scale(1.05);
+}
+
+>>>>>>> origin/dev_Danna
+/* Grid de campos del formulario */
+.admin-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.admin-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+.admin-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.admin-field label {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.admin-field input,
+.admin-field select,
+.admin-field textarea {
+  padding: 10px var(--spacing-md);
+  background-color: #3a3a3a;
+  color: var(--text-color);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-family: var(--font-family);
+  outline: none;
+  width: 100%;
+  transition: border-color var(--transition-fast);
+}
+
+.admin-field input::placeholder,
+.admin-field textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.admin-field input:focus,
+.admin-field select:focus,
+.admin-field textarea:focus {
+  border-color: var(--accent-cyan);
+}
+
+.admin-field textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+.admin-field input.error,
+.admin-field select.error {
+  border-color: #e74c3c;
+}
+
+/* Botón crear */
+.btn-admin-create {
+  width: 100%;
+  padding: 13px;
+  background-color: #27ae60;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: var(--spacing-xs);
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.btn-admin-create:hover {
+  background-color: #2ecc71;
+  transform: translateY(-1px);
+}
+
+.btn-admin-create:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Botón Cancelar (modo edición) */
+.btn-admin-cancel {
+  width: 100%;
+  padding: 13px;
+  background-color: #555;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: var(--spacing-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.btn-admin-cancel:hover {
+  background-color: #666;
+}
+
+/* ── Columna derecha: lista de productos ── */
+.admin-list-col {
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  overflow-y: auto;
+  max-height: 560px;
+}
+
+.admin-list-title {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
+.admin-list-title span {
+  color: var(--text-muted);
+  font-weight: 400;
+  font-size: var(--font-size-sm);
+}
+
+/* Tarjeta de producto en la lista */
+.admin-product-item {
+  background-color: #333;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  transition: background-color var(--transition-fast);
+}
+
+.admin-product-item:hover {
+  background-color: #3a3a3a;
+}
+
+.admin-product-item .item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-product-item .item-name {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-product-item .item-meta {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+/* Badge de stock */
+.admin-product-item .item-stock {
+  padding: 3px 10px;
+  background-color: #c0392b;
+  color: #fff;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Botones de acción */
+.admin-product-item .item-actions {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
+}
+
+.btn-item-edit,
+.btn-item-delete {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.btn-item-edit {
+  background-color: #27ae60;
+  color: #fff;
+}
+
+.btn-item-edit:hover {
+  background-color: #2ecc71;
+  transform: scale(1.05);
+}
+
+.btn-item-delete {
+  background-color: #c0392b;
+  color: #fff;
+}
+
+.btn-item-delete:hover {
+  background-color: #e74c3c;
+  transform: scale(1.05);
+}
+
+/* Mensaje de error global */
+.admin-error-msg {
+  padding: 9px var(--spacing-md);
+  background-color: rgba(231, 76, 60, 0.15);
+  border: 1px solid rgba(231, 76, 60, 0.4);
+  border-radius: var(--radius-sm);
+  color: #e74c3c;
+  font-size: var(--font-size-sm);
+  display: none;
+}
+
+.admin-error-msg.visible { display: block; }
+
+/* Estado vacío / cargando */
+.admin-list-empty {
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  text-align: center;
+  padding: var(--spacing-lg) 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .admin-modal .admin-body {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-form-col {
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .admin-list-col {
+    max-height: 400px;
+  }
+
+  .admin-row {
+    grid-template-columns: 1fr;
+  }
+}
