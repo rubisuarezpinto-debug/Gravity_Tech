@@ -10,7 +10,7 @@ const { sanitizeUser, createSafeResponse } = require('../utils/sanitizer');
 const register = async (req, res, next) => {
   try {
     // req.body is already validated by validateRequest middleware
-    const { email, password, first_name, last_name } = req.body;
+    const { email, password, name } = req.body;
 
     // Check if email already exists
     const existing = await User.findByEmail(email);
@@ -22,7 +22,7 @@ const register = async (req, res, next) => {
     }
 
     // Create new user
-    const user = await User.create(first_name, last_name, email, password);
+    const user = await User.create(name, email, password);
 
     // Generate JWT token
     const token = sign({ id: user.id, role: user.role });

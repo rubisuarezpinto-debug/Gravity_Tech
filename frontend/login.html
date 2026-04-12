@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Sesión | Gravity Tech</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+
+  <!-- Header Simplificado -->
+  <header class="header">
+    <div class="logo">
+      <a href="index.html" style="text-decoration:none">
+        <span class="logo-title">Gravity Tech 💻</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="auth-page-container">
+    <div class="auth-card">
+      <h2 class="auth-title">🔒 Iniciar Sesión</h2>
+      
+      <div class="auth-error-msg" id="login-error"></div>
+
+      <div class="auth-field">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" placeholder="tu@email.com" autocomplete="email">
+        <span class="field-error">Ingresa un email válido.</span>
+      </div>
+
+      <div class="auth-field">
+        <label for="login-password">Contraseña</label>
+        <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+        <span class="field-error">La contraseña es obligatoria.</span>
+      </div>
+
+      <button class="auth-submit-btn" id="login-submit-btn">Entrar</button>
+
+      <hr class="auth-divider">
+
+      <p class="auth-switch">
+        ¿No tienes cuenta?
+        <a href="register.html">Regístrate aquí</a>
+      </p>
+      
+      <p class="auth-switch">
+        <a href="index.html">⬅ Volver al inicio</a>
+      </p>
+    </div>
+  </main>
+
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Sobrescribir el comportamiento de redirección tras login exitoso
+    const originalHandleLogin = handleLogin;
+    window.handleLogin = async () => {
+      await originalHandleLogin();
+      if (auth.isLoggedIn()) {
+        window.location.href = 'index.html';
+      }
+    };
+    
+    document.getElementById('login-submit-btn').onclick = window.handleLogin;
+    document.getElementById('login-password').onkeydown = (e) => {
+      if (e.key === 'Enter') window.handleLogin();
+    };
+  </script>
+</body>
+</html>

@@ -6,11 +6,17 @@ const db = require('../config/db');
  */
 const findByUser = async (userId) => {
   const { rows } = await db.query(
-    `SELECT ci.id, ci.quantity, p.id AS product_id, p.name, p.price, p.image_url,
-            (ci.quantity * p.price) AS subtotal
-     FROM cart_items ci
-     JOIN products p ON p.id = ci.product_id
-     WHERE ci.user_id = $1`,
+    `SELECT ci.id_carrito_item AS id, ci.cantidad AS quantity, 
+            p.id_producto AS product_id, p.nombre AS name, p.precio AS price, i.url AS image_url,
+            (ci.cantidad * ci.precio_unitario) AS subtotal
+     FROM ecommerce.carrito_item ci
+     JOIN ecommerce.carrito c ON c.id_carrito = ci.id_carrito
+     JOIN ecommerce.producto p ON p.id_producto = ci.id_producto
+     LEFT JOIN (
+       SELECT DISTINCT ON (id_producto) id_producto, url 
+       FROM ecommerce.imagen
+     ) i ON i.id_producto = p.id_producto
+     WHERE c.id_usuario = $1 AND c.estado = 'ABIERTO'`,
     [userId]
   );
   return rows;
@@ -23,15 +29,46 @@ const findByUser = async (userId) => {
  * @param {number} quantity
  */
 const addItem = async (userId, productId, quantity = 1) => {
-  const { rows } = await db.query(
-    `INSERT INTO cart_items (user_id, product_id, quantity)
-     VALUES ($1, $2, $3)
-     ON CONFLICT (user_id, product_id)
-     DO UPDATE SET quantity = cart_items.quantity + EXCLUDED.quantity
-     RETURNING *`,
-    [userId, productId, quantity]
-  );
-  return rows[0];
+  const client = await db.pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Buscar o crear carrito abierto
+    let cartRes = await client.query(
+      "SELECT id_carrito FROM ecommerce.carrito WHERE id_usuario = $1 AND estado = 'ABIERTO'",
+      [userId]
+    );
+    let cartId;
+    if (cartRes.rows.length === 0) {
+      cartRes = await client.query(
+        "INSERT INTO ecommerce.carrito (id_usuario) VALUES ($1) RETURNING id_carrito",
+        [userId]
+      );
+    }
+    cartId = cartRes.rows[0].id_carrito;
+
+    // Obtener precio actual del producto
+    const prodRes = await client.query('SELECT precio FROM ecommerce.producto WHERE id_producto = $1', [productId]);
+    const price = prodRes.rows[0].precio;
+
+    // UPSERT en carrito_item
+    const itemRes = await client.query(
+      `INSERT INTO ecommerce.carrito_item (id_carrito, id_producto, cantidad, precio_unitario)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (id_carrito, id_producto) 
+       DO UPDATE SET cantidad = ecommerce.carrito_item.cantidad + EXCLUDED.cantidad
+       RETURNING *`,
+      [cartId, productId, quantity, price]
+    );
+
+    await client.query('COMMIT');
+    return itemRes.rows[0];
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
 };
 
 /**
@@ -41,7 +78,7 @@ const addItem = async (userId, productId, quantity = 1) => {
  */
 const updateItem = async (itemId, quantity) => {
   const { rows } = await db.query(
-    'UPDATE cart_items SET quantity = $1 WHERE id = $2 RETURNING *',
+    'UPDATE ecommerce.carrito_item SET cantidad = $1 WHERE id_carrito_item = $2 RETURNING *',
     [quantity, itemId]
   );
   return rows[0] || null;
@@ -53,7 +90,12 @@ const updateItem = async (itemId, quantity) => {
  * @param {number} userId
  */
 const removeItem = async (itemId, userId) => {
-  await db.query('DELETE FROM cart_items WHERE id = $1 AND user_id = $2', [itemId, userId]);
+  await db.query(
+    `DELETE FROM ecommerce.carrito_item 
+     WHERE id_carrito_item = $1 
+     AND id_carrito IN (SELECT id_carrito FROM ecommerce.carrito WHERE id_usuario = $2)`,
+    [itemId, userId]
+  );
 };
 
 /**
@@ -61,7 +103,10 @@ const removeItem = async (itemId, userId) => {
  * @param {number} userId
  */
 const clearCart = async (userId) => {
-  await db.query('DELETE FROM cart_items WHERE user_id = $1', [userId]);
+  await db.query(
+    "DELETE FROM ecommerce.carrito_item WHERE id_carrito IN (SELECT id_carrito FROM ecommerce.carrito WHERE id_usuario = $1 AND estado = 'ABIERTO')",
+    [userId]
+  );
 };
 
 module.exports = { findByUser, addItem, updateItem, removeItem, clearCart };

@@ -57,8 +57,10 @@ CREATE TABLE IF NOT EXISTS ecommerce.metodo_pago (
 -- Table: usuario
 CREATE TABLE IF NOT EXISTS ecommerce.usuario (
     id_usuario SERIAL PRIMARY KEY,
+    nombre VARCHAR(150),
     email VARCHAR(150) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
+    rol VARCHAR(20) DEFAULT 'cliente',
     estado VARCHAR(20) DEFAULT 'ACTIVO'
 );
 

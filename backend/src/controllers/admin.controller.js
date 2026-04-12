@@ -5,7 +5,7 @@ const Order = require('../models/Order');
 const getAllUsers = async (_req, res, next) => {
   try {
     const { rows } = await db.query(
-      'SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC'
+      'SELECT id_usuario AS id, nombre AS name, email, rol AS role FROM ecommerce.usuario ORDER BY id_usuario DESC'
     );
     res.json({ users: rows });
   } catch (err) {
@@ -17,11 +17,12 @@ const getAllUsers = async (_req, res, next) => {
 const getAllOrders = async (_req, res, next) => {
   try {
     const { rows } = await db.query(
-      `SELECT o.id, o.status, o.total, o.created_at,
-              u.name AS user_name, u.email AS user_email
-       FROM orders o
-       JOIN users u ON u.id = o.user_id
-       ORDER BY o.created_at DESC`
+      `SELECT o.id_orden AS id, s.nombre AS status, o.total, o.fecha_orden AS created_at,
+              u.nombre AS user_name, u.email AS user_email
+       FROM ecommerce.orden o
+       JOIN ecommerce.usuario u ON u.id_usuario = o.id_usuario
+       JOIN ecommerce.estado_orden s ON s.id_estado = o.id_estado
+       ORDER BY o.fecha_orden DESC`
     );
     res.json({ orders: rows });
   } catch (err) {

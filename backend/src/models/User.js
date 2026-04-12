@@ -3,18 +3,18 @@ const { hash, compare } = require('../utils/hash');
 
 /**
  * Crea un nuevo usuario.
- * @param {string} name
+ * @param {string} nombre
  * @param {string} email
  * @param {string} plainPassword
- * @param {string} role  - 'cliente' | 'admin'
+ * @param {string} rol  - 'cliente' | 'admin'
  */
-const create = async (name, email, plainPassword, role = 'cliente') => {
+const create = async (nombre, email, plainPassword, rol = 'cliente') => {
   const passwordHash = await hash(plainPassword);
   const { rows } = await db.query(
-    `INSERT INTO users (name, email, password_hash, role)
+    `INSERT INTO ecommerce.usuario (nombre, email, password_hash, rol)
      VALUES ($1, $2, $3, $4)
-     RETURNING id, name, email, role, created_at`,
-    [name, email, passwordHash, role]
+     RETURNING id_usuario AS id, nombre, email, rol`,
+    [nombre, email, passwordHash, rol]
   );
   return rows[0];
 };
@@ -25,7 +25,7 @@ const create = async (name, email, plainPassword, role = 'cliente') => {
  */
 const findByEmail = async (email) => {
   const { rows } = await db.query(
-    'SELECT * FROM users WHERE email = $1',
+    'SELECT id_usuario AS id, nombre, email, password_hash, rol FROM ecommerce.usuario WHERE email = $1',
     [email]
   );
   return rows[0] || null;
@@ -37,7 +37,7 @@ const findByEmail = async (email) => {
  */
 const findById = async (id) => {
   const { rows } = await db.query(
-    'SELECT id, name, email, role, created_at FROM users WHERE id = $1',
+    'SELECT id_usuario AS id, nombre, email, rol FROM ecommerce.usuario WHERE id_usuario = $1',
     [id]
   );
   return rows[0] || null;
