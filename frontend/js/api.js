@@ -85,14 +85,14 @@ const api = {
   /** POST /api/auth/register → guarda sesión automáticamente */
   register: async (data) => {
     const result = await request('POST', '/auth/register', data);
-    if (result.token) auth.setSession(result.token, result.user);
+    if (result.data?.token) auth.setSession(result.data.token, result.data.user);
     return result;
   },
 
   /** POST /api/auth/login → guarda sesión automáticamente */
   login: async (data) => {
     const result = await request('POST', '/auth/login', data);
-    if (result.token) auth.setSession(result.token, result.user);
+    if (result.data?.token) auth.setSession(result.data.token, result.data.user);
     return result;
   },
 
@@ -154,6 +154,40 @@ const api = {
   /** PATCH /api/admin/orders/:id/status */
   updateOrderStatus: (id, status) =>
     request('PATCH', `/admin/orders/${id}/status`, { status }),
+
+  // ════════════════════════════════════════
+  // ADMIN — Productos
+  // ════════════════════════════════════════
+
+  /** POST /api/products (admin) */
+  createProduct: (data) => request('POST', '/products', data),
+
+  /** PUT /api/products/:id (admin) */
+  updateProduct: (id, data) => request('PUT', `/products/${id}`, data),
+
+  /** PUT /api/products/:id/image (admin) — solo actualiza imagen */
+  updateProductImage: (id, image_url) =>
+  request('PUT', `/products/${id}/image`, { image_url }),
+
+  /** DELETE /api/products/:id (admin) */
+  deleteProduct: (id) => request('DELETE', `/products/${id}`),
+
+  // ════════════════════════════════════════
+  // RESEÑAS
+  // ════════════════════════════════════════
+
+  /** GET /api/reviews/product/:productId — público */
+  getReviews: (productId) => request('GET', `/reviews/product/${productId}`),
+
+  /** POST /api/reviews/product/:productId — requiere JWT
+   *  body: { comentario, puntuacion }
+   */
+  createReview: (productId, { comentario, puntuacion }) =>
+    request('POST', `/reviews/product/${productId}`, { comentario, puntuacion }),
+
+  /** DELETE /api/reviews/:id — requiere JWT */
+  deleteReview: (id) => request('DELETE', `/reviews/${id}`),
+
 };
 
 window.api = api;

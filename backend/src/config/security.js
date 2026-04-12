@@ -43,7 +43,7 @@ module.exports = {
       },
       register: {
         windowMs: 60 * 60 * 1000, // 1 hour
-        max: 3, // 3 requests per hour
+        max: 100, // 3 requests per hour
       },
       forgotPassword: {
         windowMs: 60 * 60 * 1000, // 1 hour

@@ -8,6 +8,11 @@
 
 // ── Abrir modal ───────────────────────────────────────────
 async function openCheckout() {
+  if (!auth.isLoggedIn()) {
+    closeCart();
+    openLogin();
+    return;
+  }
   closeCart();
   await renderCheckoutSummary();
   document.getElementById('checkout-overlay').classList.add('open');
@@ -44,9 +49,9 @@ async function renderCheckoutSummary() {
       listEl.appendChild(row);
     });
 
-    const formatted = `$ ${total.toLocaleString('es-CO')}`;
+    const formatted = formatPrice(total);
     if (totalEl)  totalEl.textContent  = formatted;
-    if (btnTotal) btnTotal.textContent = `$${total.toLocaleString('es-CO')}`;
+    if (btnTotal) btnTotal.textContent = formatPrice(total);
 
   } catch (err) {
     listEl.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">Error al cargar el resumen.</p>';
