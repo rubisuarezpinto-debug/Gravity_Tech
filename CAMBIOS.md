@@ -375,4 +375,17 @@ coincidan con los nombres reales en la tabla `ecommerce.categoria`.
 
 **Archivo:** `frontend/admin-products.html`
 
+### 26. Opciones del filtro de categoría no coincidían con la base de datos
+
+**Qué estaba mal:** El `<select id="filter-category">` en `index.html` tenía
+las opciones "Computadores", "Celulares", "Accesorios" y "Videojuegos", pero
+las categorías reales en la tabla `ecommerce.categoria` son: Tecnología,
+Calzado, Ropa, Deportes, Hogar, Accesorios y Libros. El filtro no funcionaba
+para ninguna opción excepto "Accesorios".
+
+**Qué se hizo:** Se reemplazaron las opciones del select por los nombres
+exactos de las categorías en la base de datos.
+
+**Archivo:** `frontend/index.html`
+
 *Última actualización: 12 de abril de 2026*
