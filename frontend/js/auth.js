@@ -176,13 +176,12 @@ function showAuthError(type, message) {
 
 // ── Actualizar header según estado de sesión ─────────────
 function updateHeaderAuth() {
-  // Si la página tiene renderHeader() (index.html), usarla
-  if (typeof renderHeader === 'function') {
-    renderHeader();
+  if (typeof window.renderHeader === 'function') {
+    window.renderHeader();
     return;
   }
 
-  // Fallback para product.html y otras páginas
+  // Fallback para otras páginas
   const btnLogin = document.getElementById('btn-login-header');
   if (!btnLogin) return;
 

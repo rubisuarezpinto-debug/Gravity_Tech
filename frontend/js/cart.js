@@ -107,7 +107,7 @@ async function renderCart() {
     });
 
     if (countEl) countEl.textContent = totalItems;
-    if (totalEl) totalEl.textContent = `$ ${totalPrice.toLocaleString('es-CO')} COP`;
+    if (totalEl) totalEl.textContent = formatPrice(totalPrice);
 
   } catch (err) {
     list.innerHTML = '<p class="cart-empty">Inicia sesión para ver tu carrito.</p>';
@@ -119,7 +119,7 @@ async function renderCart() {
 async function addToCart(productId) {
   if (!auth.isLoggedIn()) {
     alert('Debes iniciar sesión para agregar productos al carrito.');
-    window.location.href = 'login.html';
+    openLogin();
     return;
   }
   try {

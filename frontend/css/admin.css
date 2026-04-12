@@ -108,6 +108,26 @@
   margin-bottom: var(--spacing-xs);
 }
 
+.btn-item-img {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #2980b9;
+  color: #fff;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.btn-item-img:hover {
+  background-color: #3498db;
+  transform: scale(1.05);
+}
+
 /* Grid de campos del formulario */
 .admin-fields {
   display: flex;

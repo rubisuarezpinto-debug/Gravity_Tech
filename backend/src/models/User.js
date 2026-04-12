@@ -10,13 +10,12 @@ const { hash, compare } = require('../utils/hash');
  */
 const create = async (name, email, plainPassword, role = 'cliente') => {
   const passwordHash = await hash(plainPassword);
-  const { rows } = await db.query(
-    `INSERT INTO users (name, email, password_hash, role)
-     VALUES ($1, $2, $3, $4)
-     RETURNING id, name, email, role, created_at`,
-    [name, email, passwordHash, role]
+  await db.query(
+    `INSERT INTO users (name, email, password_hash)
+     VALUES ($1, $2, $3)`,
+    [name, email, passwordHash]
   );
-  return rows[0];
+  return await findByEmail(email);
 };
 
 /**

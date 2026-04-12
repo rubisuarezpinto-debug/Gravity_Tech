@@ -40,5 +40,5 @@ function renderStars(rating) {
 }
 
 function formatPrice(price) {
-  return `$${Number(price).toLocaleString('es-CO')} COP`;
+  return `${Number(price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }

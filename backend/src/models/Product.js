@@ -27,12 +27,15 @@ const findById = async (id) => {
  * Crea un nuevo producto.
  * @param {Object} data  - { name, description, price, stock, image_url, category_id }
  */
-const create = async ({ name, description, price, stock, image_url, category_id }) => {
+const create = async ({ name, description, price, stock, category_id, brand_id }) => {
+  await db.query(
+    `INSERT INTO products (name, description, price, stock, category_id, brand_id)
+     VALUES ($1, $2, $3, $4, $5, $6)`,
+    [name, description, price, stock, category_id, brand_id]
+  );
   const { rows } = await db.query(
-    `INSERT INTO products (name, description, price, stock, image_url, category_id)
-     VALUES ($1, $2, $3, $4, $5, $6)
-     RETURNING *`,
-    [name, description, price, stock, image_url, category_id]
+    `SELECT * FROM products WHERE name = $1 ORDER BY id DESC LIMIT 1`,
+    [name]
   );
   return rows[0];
 };
@@ -42,15 +45,22 @@ const create = async ({ name, description, price, stock, image_url, category_id 
  * @param {number} id
  * @param {Object} data
  */
-const update = async (id, { name, description, price, stock, image_url }) => {
-  const { rows } = await db.query(
+const update = async (id, { name, description, price, stock, brand_id, category_id }) => {
+  await db.query(
     `UPDATE products
-     SET name=$1, description=$2, price=$3, stock=$4, image_url=$5, updated_at=NOW()
-     WHERE id=$6
-     RETURNING *`,
-    [name, description, price, stock, image_url, id]
+     SET name=$1, description=$2, price=$3, stock=$4, brand_id=$5, category_id=$6
+     WHERE id=$7`,
+    [name, description, price, stock, brand_id, category_id, id]
   );
-  return rows[0] || null;
+  return await findById(id);
+};
+
+const updateImage = async (id, image_url) => {
+  await db.query(
+    `UPDATE ecommerce.imagen SET url = $1 WHERE id_producto = $2`,
+    [image_url, id]
+  );
+  return await findById(id);
 };
 
 /**
@@ -58,7 +68,7 @@ const update = async (id, { name, description, price, stock, image_url }) => {
  * @param {number} id
  */
 const remove = async (id) => {
-  await db.query('UPDATE products SET active = FALSE WHERE id = $1', [id]);
+  await db.query('DELETE FROM products WHERE id = $1', [id]);
 };
 
-module.exports = { findAll, findById, create, update, remove };
+module.exports = { findAll, findById, create, update, updateImage, remove };

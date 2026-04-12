@@ -76,17 +76,20 @@
     <span class="filter-label">Categoría:</span>
     <select id="filter-category">
       <option value="">Todas</option>
-      <option value="Computadores">Computadores</option>
-      <option value="Celulares">Celulares</option>
-      <option value="Accesorios">Accesorios</option>
-      <option value="Videojuegos">Videojuegos</option>
+      <option value="1">Tecnología</option>
+      <option value="2">Calzado</option>
+      <option value="3">Ropa</option>
+      <option value="4">Deportes</option>
+      <option value="5">Hogar</option>
+      <option value="6">Accesorios</option>
+      <option value="7">Libros</option>
     </select>
     <span class="filter-label">Precio:</span>
     <select id="filter-price">
       <option value="">Rango</option>
-      <option value="low">Menor a $1.000.000</option>
-      <option value="mid">$1.000.000 - $3.000.000</option>
-      <option value="high">Mayor a $3.000.000</option>
+      <option value="low">Menor a $100</option>
+      <option value="mid">$100 - $500</option>
+      <option value="high">Mayor a $500</option>
     </select>
   </section>
 
@@ -116,7 +119,7 @@
       </div>
       <div class="cart-total-row">
         <span class="cart-total-label">Total a pagar:</span>
-        <span class="cart-total-value" id="cart-total-price">$ 0 COP</span>
+        <span class="cart-total-value" id="cart-total-price">$ 0 </span>
       </div>
       <button class="btn-checkout" id="btn-checkout">💳 Finalizar Compra</button>
     </div>
@@ -174,7 +177,7 @@
 
   <!--
   =========================================================
-  auth-modals.html — Modales de Login y Registro
+  Modales de Login y Registro
   =========================================================
 -->
 
@@ -254,7 +257,7 @@
 
   <!--
   =========================================================
-  admin-modal.html — Modal del panel de administrador
+  Modal del panel de administrador
   =========================================================
   -->
 
@@ -286,12 +289,31 @@
                 <label for="admin-category">Categoría *</label>
                 <select id="admin-category">
                   <option value="">Seleccionar...</option>
-                  <option value="1">Computadores</option>
-                  <option value="2">Celulares</option>
-                  <option value="3">Accesorios</option>
-                  <option value="4">Videojuegos</option>
+                  <option value="1">Tecnologia</option>
+                  <option value="2">Calzado</option>
+                  <option value="3">Ropa</option>
+                  <option value="4">Deportes</option>
+                  <option value="5">Hogar</option>
+                  <option value="6">Accesorios</option>
+                  <option value="7">Libros</option>
                 </select>
               </div>
+
+              <div class="admin-field">
+                <label for="admin-brand">Marca *</label>
+                <select id="admin-brand">
+                  <option value="">Seleccionar...</option>
+                  <option value="1">Sony</option>
+                  <option value="2">Nike</option>
+                  <option value="3">Samsung</option>
+                  <option value="4">Apple</option>
+                  <option value="5">Adidas</option>
+                  <option value="6">Logitech</option>
+                  <option value="7">Xiaomi</option>
+                  <option value="8">LG</option>
+                </select>
+              </div>
+
             </div>
 
             <div class="admin-field">
@@ -308,11 +330,6 @@
                 <label for="admin-price">Precio *</label>
                 <input type="number" id="admin-price" placeholder="" min="0">
               </div>
-            </div>
-
-            <div class="admin-field">
-              <label for="admin-image">URL de imagen</label>
-              <input type="url" id="admin-image" placeholder="">
             </div>
           </div>
 
@@ -336,7 +353,7 @@
 
   <!--
   =========================================================
-  orders-modal.html — Modal del historial de órdenes (admin)
+  Modal del historial de órdenes (admin)
   =========================================================
   -->
 
@@ -390,8 +407,50 @@
   <script src="../js/cart.js"></script>
   <script src="../js/checkout.js"></script>
   <script src="../js/admin.js"></script>
-  <script src="../js/orders-admin.js"></script>
+  <script src="../js/ordersAdmin.js"></script>
   <script>
+    function renderHeader() {
+      const user        = auth.getUser();
+      const headerUser  = document.getElementById('header-user');
+      const headerAdmin = document.getElementById('header-admin');
+
+      if (user && auth.isAdmin()) {
+        headerUser.style.display  = 'none';
+        headerAdmin.style.display = 'flex';
+        document.getElementById('btn-admin-name').textContent = `👤 ${user.email || 'admin'}`;
+
+        document.getElementById('btn-logout-admin').onclick = () => {
+          auth.logout();
+          renderHeader();
+          updateCartCount();
+          loadProducts();
+        };
+
+      } else if (user) {
+        headerUser.style.display  = 'flex';
+        headerAdmin.style.display = 'none';
+        const btnLogin = document.getElementById('btn-login-header');
+        btnLogin.textContent = `👤 ${user.email}`;
+        btnLogin.onclick = (e) => {
+          e.preventDefault();
+          if (confirm('¿Deseas cerrar sesión?')) {
+            auth.logout();
+            renderHeader();
+            updateCartCount();
+          }
+        };
+
+      } else {
+        headerUser.style.display  = 'flex';
+        headerAdmin.style.display = 'none';
+        const btnLogin = document.getElementById('btn-login-header');
+        btnLogin.textContent = '🔐 Iniciar sesión';
+        btnLogin.onclick = (e) => { e.preventDefault(); openLogin(); };
+      }
+    }
+
+    window.renderHeader = renderHeader;
+
     async function loadProducts(filters = {}) {
       const container = document.getElementById('products-container');
       const isAdmin   = auth.isAdmin();
@@ -410,9 +469,13 @@
           );
         }
 
-        if (filters.price === 'low')  filtered = filtered.filter(p => p.price < 1000000);
-        if (filters.price === 'mid')  filtered = filtered.filter(p => p.price >= 1000000 && p.price <= 3000000);
-        if (filters.price === 'high') filtered = filtered.filter(p => p.price > 3000000);
+        if (filters.category) {
+          filtered = filtered.filter(p => p.category_id === Number(filters.category));
+        }
+
+        if (filters.price === 'low')  filtered = filtered.filter(p => p.price < 100);
+        if (filters.price === 'mid')  filtered = filtered.filter(p => p.price >= 100 && p.price <= 500);
+        if (filters.price === 'high') filtered = filtered.filter(p => p.price > 500);
 
         container.innerHTML = '';
 
@@ -424,25 +487,28 @@
         filtered.forEach(product => {
           const card = document.createElement('section');
           card.classList.add('product');
-          // Botón condicional según rol
-          const actionBtn = isAdmin
+
+          const actionBtn = auth.isAdmin()
             ? `<a href="admin-product-edit.html?id=${product.id}" class="btn-admin-card">👤 Vista administrador</a>`
             : `<button class='btn-add-cart' onclick='addToCart(${product.id})'>🛒 Agregar al carrito</button>`;
+
           card.innerHTML = `
-            <div class="product-img-wrapper">
-              <img
-                src="${product.image_url}"
-                alt="${product.name}"
-                onerror="this.src='https://placehold.co/300x225/3a3a3a/00c8e0?text=Sin+imagen'"
-              >
-            </div>
-            <h2>${product.name}</h2>
+            <a href="product.html?id=${product.id}" style="text-decoration:none;color:inherit">
+              <div class="product-img-wrapper">
+                <img
+                  src="${product.image_url}"
+                  alt="${product.name}"
+                  onerror="this.src='https://placehold.co/300x225/3a3a3a/00c8e0?text=Sin+imagen'"
+                >
+              </div>
+              <h2>${product.name}</h2>
+            </a>
             <p>${product.description || ''}</p>
             <div class="product-meta">
               <span class="badge-stock">${product.stock} disponibles</span>
             </div>
-            <span class="price">$${formatPrice(product.price)}</span>
-            <button class='btn-add-cart' onclick='addToCart(${product.id})'>🛒 Agregar al carrito</button>
+            <span class="price">${formatPrice(product.price)}</span>
+            ${actionBtn}
           `;
           container.appendChild(card);
         });
@@ -454,12 +520,14 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      renderHeader();
       loadProducts();
 
       document.getElementById('search-btn').addEventListener('click', () => {
         loadProducts({
-          search: document.getElementById('search-input').value,
-          price:  document.getElementById('filter-price').value,
+          search:   document.getElementById('search-input').value,
+          price:    document.getElementById('filter-price').value,
+          category: document.getElementById('filter-category').value,
         });
       });
 
@@ -472,8 +540,17 @@
 
       document.getElementById('filter-price').addEventListener('change', () => {
         loadProducts({
-          search: document.getElementById('search-input').value,
-          price:  document.getElementById('filter-price').value,
+          search:   document.getElementById('search-input').value,
+          price:    document.getElementById('filter-price').value,
+          category: document.getElementById('filter-category').value,
+        });
+      });
+
+      document.getElementById('filter-category').addEventListener('change', () => {
+        loadProducts({
+          search:   document.getElementById('search-input').value,
+          price:    document.getElementById('filter-price').value,
+          category: document.getElementById('filter-category').value,
         });
       });
     });

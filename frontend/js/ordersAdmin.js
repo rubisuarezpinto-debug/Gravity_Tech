@@ -55,8 +55,7 @@ function renderStats(orders) {
 
   document.getElementById('stat-total-orders').textContent   = totalOrders;
   document.getElementById('stat-total-products').textContent = totalProducts;
-  document.getElementById('stat-total-sales').textContent    =
-    `$${totalSales.toLocaleString('es-CO')}`;
+  document.getElementById('stat-total-sales').textContent = formatPrice(totalSales);
 }
 
 function resetStats() {
@@ -99,7 +98,7 @@ function renderOrders(orders) {
         </div>
         <div>
           <div class="order-total-label">Total</div>
-          <div class="order-total">$${Number(order.total).toLocaleString('es-CO')}</div>
+          <div class="order-total">${formatPrice(order.total)}</div>
         </div>
       </div>
 
@@ -108,8 +107,7 @@ function renderOrders(orders) {
         <div class="customer-block">
           <span class="customer-icon">👤</span>
           <div>
-            <div class="customer-name">${user.name || 'Usuario'}</div>
-            <div class="customer-email">${user.email || '—'}</div>
+            <div class="customer-name">${order.user_email || '—'}</div>
           </div>
         </div>
         <div class="customer-block">
@@ -126,7 +124,7 @@ function renderOrders(orders) {
             <span>${item.name || item.product_name || '—'}</span>
             <span class="product-qty">x${item.quantity}</span>
             <span class="product-subtotal">
-              $${(Number(item.unit_price || item.precio_unitario || 0) * item.quantity).toLocaleString('es-CO')}
+              ${formatPrice((Number(item.unit_price || item.precio_unitario || 0) * item.quantity))}
             </span>
           </div>
         `).join('')}

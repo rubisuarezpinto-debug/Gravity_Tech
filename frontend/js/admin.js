@@ -25,10 +25,10 @@ function closeAdminPanel() {
 function clearAdminForm() {
   document.getElementById('admin-title').value       = '';
   document.getElementById('admin-category').value    = '';
+  document.getElementById('admin-brand').value       = '';
   document.getElementById('admin-description').value = '';
   document.getElementById('admin-stock').value       = '';
   document.getElementById('admin-price').value       = '';
-  document.getElementById('admin-image').value       = '';
 
   ['admin-title', 'admin-category', 'admin-stock', 'admin-price'].forEach(id =>
     document.getElementById(id).classList.remove('error')
@@ -73,17 +73,32 @@ async function loadAdminProducts() {
     products.forEach(p => {
       const item = document.createElement('div');
       item.classList.add('admin-product-item');
+      item.dataset.product = JSON.stringify(p);
       item.innerHTML = `
         <div class="item-info">
           <span class="item-name">${p.name}</span>
-          <span class="item-meta">Cat. ${p.category_id} — $${Number(p.price).toLocaleString('es-CO')}</span>
+          <span class="item-meta">Cat. ${p.category_id} — ${formatPrice(p.price)}</span>
         </div>
         <span class="item-stock">Stock: ${p.stock}</span>
         <div class="item-actions">
-          <button class="btn-item-edit" title="Editar" onclick='fillEditForm(${JSON.stringify(p)})'>✏️</button>
-          <button class="btn-item-delete" title="Eliminar" onclick='deleteProduct(${p.id}, "${p.name}")'>🗑️</button>
+          <button class="btn-item-edit" title="Editar">✏️</button>
+          <button class="btn-item-img" title="Actualizar imagen">🖼️</button>
+          <button class="btn-item-delete" title="Eliminar">🗑️</button>
         </div>
       `;
+
+      item.querySelector('.btn-item-edit').addEventListener('click', () => {
+        fillEditForm(JSON.parse(item.dataset.product));
+      });
+
+      item.querySelector('.btn-item-img').addEventListener('click', () => {
+        updateProductImage(p.id, p.image_url || '');
+      });
+
+      item.querySelector('.btn-item-delete').addEventListener('click', () => {
+        deleteProduct(p.id, p.name);
+      });
+
       listEl.appendChild(item);
     });
 
@@ -93,14 +108,27 @@ async function loadAdminProducts() {
   }
 }
 
+async function updateProductImage(productId, currentUrl) {
+  const newUrl = prompt('URL de la imagen:', currentUrl);
+  if (newUrl === null) return; // canceló
+
+  try {
+    await api.updateProductImage(productId, newUrl);
+    await loadAdminProducts();
+    if (typeof loadProducts === 'function') loadProducts();
+  } catch (err) {
+    alert('Error al actualizar la imagen: ' + err.message);
+  }
+}
+
 // ── Rellenar formulario para editar ──────────────────────
 function fillEditForm(product) {
   document.getElementById('admin-title').value       = product.name        || '';
   document.getElementById('admin-category').value    = product.category_id || '';
+  document.getElementById('admin-brand').value       = product.brand_id    || '';
   document.getElementById('admin-description').value = product.description || '';
   document.getElementById('admin-stock').value       = product.stock       || '';
   document.getElementById('admin-price').value       = product.price       || '';
-  document.getElementById('admin-image').value       = product.image_url   || '';
 
   const btn = document.getElementById('btn-admin-create');
   btn.textContent      = 'Actualizar';
@@ -116,7 +144,6 @@ function fillEditForm(product) {
     btn.insertAdjacentElement('afterend', cancelBtn);
   }
 
-  // Scroll al formulario en móvil
   document.querySelector('.admin-form-col')?.scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -125,6 +152,7 @@ function validateAdminForm() {
   const required = [
     { id: 'admin-title',    label: 'Título' },
     { id: 'admin-category', label: 'Categoría' },
+    { id: 'admin-brand', label: 'Marca' },
     { id: 'admin-stock',    label: 'Stock' },
     { id: 'admin-price',    label: 'Precio' },
   ];
@@ -155,10 +183,10 @@ async function submitAdminForm() {
   const data = {
     name:        document.getElementById('admin-title').value.trim(),
     category_id: Number(document.getElementById('admin-category').value),
+    brand_id:    Number(document.getElementById('admin-brand').value),
     description: document.getElementById('admin-description').value.trim(),
     stock:       Number(document.getElementById('admin-stock').value),
     price:       Number(document.getElementById('admin-price').value),
-    image_url:   document.getElementById('admin-image').value.trim() || null,
   };
 
   btn.disabled    = true;

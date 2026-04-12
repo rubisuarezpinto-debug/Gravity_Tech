@@ -46,13 +46,24 @@
   <!-- Header -->
   <header class="header">
     <div class="logo">
-      <span class="logo-title">Gravity Tech 💻</span>
-      <span class="logo-subtitle">Lo mejor en tecnología</span>
+      <a href="index.html" style="text-decoration:none;color:inherit">
+        <span class="logo-title">Gravity Tech 💻</span>
+        <span class="logo-subtitle">Lo mejor en tecnología</span>
+      </a>
     </div>
-    <div class="actions">
-      <a href="index.html" class="btn-login" id="btn-home">🏠 Inicio</a>
+
+    <div class="actions" id="header-user">
+      <a href="index.html" class="btn-login">🏠 Inicio</a>
       <a href="#" class="btn-login" id="btn-login-header">🔐 Iniciar sesión</a>
       <a href="#" class="btn-cart">🛒 Carrito (<span id="cart-count">0</span>)</a>
+    </div>
+
+    <div class="actions" id="header-admin" style="display:none">
+      <a href="index.html" class="btn-login">🏠 Inicio</a>
+      <span class="btn-admin-name" id="btn-admin-name">👤 admin</span>
+      <a href="admin-products.html" class="btn-admin">⚙ Editar</a>
+      <a href="admin-orders.html" class="btn-admin">📦 Pedidos</a>
+      <button class="btn-logout" id="btn-logout-admin">Cerrar sesión</button>
     </div>
   </header>
 
@@ -208,6 +219,43 @@
       });
     }
 
+    function renderHeader() {
+      const user        = auth.getUser();
+      const headerUser  = document.getElementById('header-user');
+      const headerAdmin = document.getElementById('header-admin');
+
+      if (user && auth.isAdmin()) {
+        headerUser.style.display  = 'none';
+        headerAdmin.style.display = 'flex';
+        document.getElementById('btn-admin-name').textContent = `👤 ${user.email || 'admin'}`;
+        document.getElementById('btn-logout-admin').onclick = () => {
+          auth.logout();
+          window.location.href = 'index.html';
+        };
+      } else if (user) {
+        headerUser.style.display  = 'flex';
+        headerAdmin.style.display = 'none';
+        const btnLogin = document.getElementById('btn-login-header');
+        btnLogin.textContent = `👤 ${user.email}`;
+        btnLogin.onclick = (e) => {
+          e.preventDefault();
+          if (confirm('¿Deseas cerrar sesión?')) {
+            auth.logout();
+            renderHeader();
+            updateCartCount();
+          }
+        };
+      } else {
+        headerUser.style.display  = 'flex';
+        headerAdmin.style.display = 'none';
+        const btnLogin = document.getElementById('btn-login-header');
+        btnLogin.textContent = '🔐 Iniciar sesión';
+        btnLogin.onclick = (e) => { e.preventDefault(); openLogin(); };
+      }
+    }
+
+    window.renderHeader = renderHeader;
+
     // ── Renderizar producto ───────────────────────────────
     async function loadProduct() {
       const productId = getProductIdFromURL();
@@ -269,12 +317,15 @@
             <p class="product-description">${product.description || ''}</p>
             <span class="product-price">$${formatPrice(product.price)}</span>
             <span class="product-stock">${product.stock} unidades disponibles</span>
-            <button class='btn-add-cart' onclick='addToCart(${product.id})'>🛒 Agregar al carrito</button>
+            ${auth.isAdmin() 
+              ? '' 
+              : `<button class='btn-add-cart' onclick='addToCart(${product.id})'>🛒 Agregar al carrito</button>`
+            }
           </div>
         `;
 
         // Cargar reseñas
-        await loadReviews(productId, product);
+        await loadReviews(productId);
 
       } catch (err) {
         detail.innerHTML = '<p class="product-loading">Error al cargar el producto.</p>';
@@ -283,53 +334,56 @@
     }
 
     // ── Renderizar reseñas ────────────────────────────────
-    async function loadReviews(productId, product) {
+    async function loadReviews(productId) {
       const reviewsSection = document.getElementById('product-reviews');
       const reviewsList    = document.getElementById('reviews-list');
       const ratingEl       = document.getElementById('product-rating');
 
-      // El modelo Product no tiene endpoint de reseñas aún,
-      // pero la tabla RESENA existe en el ER. Por ahora usamos
-      // los datos del producto si vienen con reseñas incluidas,
-      // o mostramos la sección vacía lista para cuando el endpoint exista.
-      const reviews = product.reviews || [];
-
       reviewsSection.style.display = 'block';
 
-      if (!reviews.length) {
-        reviewsList.innerHTML = '<p class="reviews-empty">Este producto aún no tiene reseñas.</p>';
-        return;
+      try {
+        const { reviews, stats } = await api.getReviews(productId);
+
+        if (ratingEl && stats) {
+          ratingEl.innerHTML = `
+            ${renderStars(stats.avg || 0)}
+            <span class="rating-text">
+              ${Number(stats.avg || 0).toFixed(1)}/5
+              (${stats.count || 0} reseña${stats.count !== 1 ? 's' : ''})
+            </span>
+          `;
+        }
+
+        if (!reviews.length) {
+          reviewsList.innerHTML = '<p class="reviews-empty">Este producto aún no tiene reseñas.</p>';
+          return;
+        }
+
+        reviewsList.innerHTML = '';
+        reviews.forEach(review => {
+          const card = document.createElement('div');
+          card.classList.add('review-card');
+          card.innerHTML = `
+            <p class="review-author"><strong>Usuario:</strong> ${review.comentario || ''}</p>
+            <div class="review-rating">
+              ${renderStars(review.puntuacion)}
+              <span>${review.puntuacion}/5</span>
+            </div>
+          `;
+          reviewsList.appendChild(card);
+        });
+
+      } catch (err) {
+        reviewsList.innerHTML = '<p class="reviews-empty">Error al cargar las reseñas.</p>';
+        console.error('loadReviews error:', err);
       }
-
-      // Calcular promedio
-      const avg = reviews.reduce((sum, r) => sum + r.puntuacion, 0) / reviews.length;
-
-      // Actualizar rating en la info
-      if (ratingEl) {
-        ratingEl.innerHTML = `
-          ${renderStars(avg)}
-          <span class="rating-text">${avg.toFixed(1)}/5 (${reviews.length} reseña${reviews.length !== 1 ? 's' : ''})</span>
-        `;
-      }
-
-      // Renderizar cada reseña
-      reviewsList.innerHTML = '';
-      reviews.forEach(review => {
-        const card = document.createElement('div');
-        card.classList.add('review-card');
-        card.innerHTML = `
-          <p class="review-author"><strong>Usuario:</strong> ${review.comentario}</p>
-          <div class="review-rating">
-            ${renderStars(review.puntuacion)}
-            <span>${review.puntuacion}/5</span>
-          </div>
-        `;
-        reviewsList.appendChild(card);
-      });
     }
 
     // ── Iniciar ───────────────────────────────────────────
-    document.addEventListener('DOMContentLoaded', loadProduct);
+    document.addEventListener('DOMContentLoaded', () => {
+      renderHeader();
+      loadProduct();
+    });
   </script>
 
 </body>
