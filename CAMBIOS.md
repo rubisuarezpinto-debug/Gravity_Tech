@@ -434,4 +434,20 @@ de entorno `${DB_PASSWORD}` que se lee desde el archivo `.env`.
 
 **Archivo:** `backend/database/Scripts/02-insert-data/execute_command.sh`
 
+---
+
+
+---
+
+### 29. Carpeta schema/ obsoleta movida a _deprecated/
+
+**Qué estaba mal:** La carpeta `backend/database/schema/` contenía un esquema
+alternativo en inglés (`CREATE TABLE users`, `CREATE TABLE products`, etc.)
+que ya no se usa. Su presencia causaba confusión sobre cuál era el esquema
+real del proyecto.
+
+**Qué se hizo:** Se movió la carpeta a `backend/database/_deprecated/schema/`
+para conservar el historial sin que interfiera con el desarrollo activo.
+
+**Archivo:** `backend/database/schema/` → `backend/database/_deprecated/schema/`
 *Última actualización: 12 de abril de 2026*
