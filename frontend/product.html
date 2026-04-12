@@ -1,0 +1,336 @@
+<!--
+  =========================================================
+  product.html — Detalle de producto
+  =========================================================
+
+  DESCRIPCIÓN:
+    Muestra la información completa de un producto individual:
+    imagen grande, nombre, descripción, precio, stock disponible
+    y botón "Agregar al carrito".
+
+  CÓMO OBTENER EL ID DEL PRODUCTO:
+    const id = utils.getQueryParam('id');
+    → La URL esperada es: product.html?id=5
+
+  CONEXIÓN CON EL BACKEND:
+    1. Obtener datos del producto:
+         const { product } = await api.getProduct(id);
+         → GET http://localhost:3000/api/products/:id
+
+    2. Agregar al carrito:
+         await api.addToCart({ product_id: product.id, quantity });
+         → POST http://localhost:3000/api/cart
+         → Header requerido: Authorization: Bearer <JWT>
+
+  SCRIPTS A INCLUIR (en este orden):
+    <script src="../js/utils.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/cart.js"></script>
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalle del producto — Gravity Tech 💻</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/cart.css">
+  <link rel="stylesheet" href="css/checkout.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/product.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <span class="logo-title">Gravity Tech 💻</span>
+      <span class="logo-subtitle">Lo mejor en tecnología</span>
+    </div>
+    <div class="actions">
+      <a href="index.html" class="btn-login" id="btn-home">🏠 Inicio</a>
+      <a href="#" class="btn-login" id="btn-login-header">🔐 Iniciar sesión</a>
+      <a href="#" class="btn-cart">🛒 Carrito (<span id="cart-count">0</span>)</a>
+    </div>
+  </header>
+
+  <!-- Contenido del producto (se llena dinámicamente) -->
+  <div class="product-detail" id="product-detail">
+    <p class="product-loading">Cargando producto...</p>
+  </div>
+
+  <!-- Reseñas (se llena dinámicamente) -->
+  <section class="product-reviews" id="product-reviews" style="display:none">
+    <h2 class="reviews-title">Reseñas</h2>
+    <div class="reviews-list" id="reviews-list"></div>
+  </section>
+
+  <!-- Cart sidebar -->
+  <div class="cart-overlay" id="cart-overlay"></div>
+  <aside class="cart-sidebar" id="cart-sidebar">
+    <div class="cart-header">
+      <h2>🛒 Carrito de Compras</h2>
+      <button class="cart-close-btn" id="cart-close-btn" aria-label="Cerrar carrito">✕</button>
+    </div>
+    <div class="cart-items" id="cart-items-list">
+      <p class="cart-empty">Tu carrito está vacío.</p>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-summary-row">
+        <span>Total de artículos:</span>
+        <span id="cart-item-count">0</span>
+      </div>
+      <div class="cart-total-row">
+        <span class="cart-total-label">Total a pagar:</span>
+        <span class="cart-total-value" id="cart-total-price">$ 0 COP</span>
+      </div>
+      <button class="btn-checkout" id="btn-checkout">💳 Finalizar Compra</button>
+    </div>
+  </aside>
+
+  <!-- Checkout modal -->
+  <div class="checkout-overlay" id="checkout-overlay">
+    <div class="checkout-modal" role="dialog" aria-modal="true">
+      <h2 class="checkout-title">💳 Finalizar Compra</h2>
+      <section>
+        <p class="checkout-section-title">Resumen del pedido</p>
+        <div class="checkout-order-summary">
+          <div id="checkout-items-list"></div>
+          <hr class="checkout-divider">
+          <div class="checkout-total-row">
+            <span>Total:</span>
+            <span class="total-value" id="checkout-total">$ 0</span>
+          </div>
+        </div>
+      </section>
+      <section class="checkout-shipping">
+        <p class="checkout-section-title">Método de pago</p>
+        <div class="checkout-user-email" id="checkout-user-email">Compra asociada a: cargando...</div>
+        <div class="checkout-fields">
+          <div class="checkout-field">
+            <label for="checkout-payment">Método de pago *</label>
+            <select id="checkout-payment" required>
+              <option value="">Seleccionar</option>
+              <option value="card">Tarjeta de crédito / débito</option>
+              <option value="transfer">Transferencia bancaria</option>
+              <option value="cash">Pago contra entrega</option>
+            </select>
+          </div>
+          <div class="checkout-field">
+            <label for="checkout-payment-data">Referencia / Número de tarjeta</label>
+            <input type="text" id="checkout-payment-data" placeholder="Número tarjeta" disabled>
+          </div>
+        </div>
+      </section>
+      <button class="btn-confirm-purchase" id="btn-confirm-purchase">
+        Confirmar compra - <span id="checkout-btn-total">$0</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Auth modals -->
+  <div class="auth-overlay" id="login-overlay">
+    <div class="auth-modal" role="dialog" aria-modal="true">
+      <button class="auth-close-btn" id="login-close-btn">✕</button>
+      <h2 class="auth-title">🔒 Iniciar Sesión</h2>
+      <div class="auth-error-msg" id="login-error"></div>
+      <div class="auth-field">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" placeholder="tu@email.com" autocomplete="email">
+        <span class="field-error">Ingresa un email válido.</span>
+      </div>
+      <div class="auth-field">
+        <label for="login-password">Contraseña</label>
+        <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+        <span class="field-error">La contraseña es obligatoria.</span>
+      </div>
+      <button class="auth-submit-btn" id="login-submit-btn">Iniciar Sesión</button>
+      <hr class="auth-divider">
+      <p class="auth-switch">¿No tienes cuenta? <a id="go-to-register">Regístrate aquí</a></p>
+    </div>
+  </div>
+
+  <div class="auth-overlay" id="register-overlay">
+    <div class="auth-modal" role="dialog" aria-modal="true">
+      <button class="auth-close-btn" id="register-close-btn">✕</button>
+      <h2 class="auth-title">📋 Registrarse</h2>
+      <div class="auth-error-msg" id="register-error"></div>
+      <div class="auth-field">
+        <label for="register-name">Nombre completo</label>
+        <input type="text" id="register-name" placeholder="Tu nombre" autocomplete="name">
+        <span class="field-error">El nombre es obligatorio.</span>
+      </div>
+      <div class="auth-field">
+        <label for="register-email">Email</label>
+        <input type="email" id="register-email" placeholder="tu@email.com" autocomplete="email">
+        <span class="field-error">Ingresa un email válido.</span>
+      </div>
+      <div class="auth-field">
+        <label for="register-password">Contraseña</label>
+        <input type="password" id="register-password" placeholder="••••••••" autocomplete="new-password">
+        <span class="field-error">Mínimo 6 caracteres.</span>
+      </div>
+      <button class="auth-submit-btn" id="register-submit-btn">Registrarse</button>
+      <hr class="auth-divider">
+      <p class="auth-switch">¿Ya tienes cuenta? <a id="go-to-login">Inicia sesión aquí</a></p>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/utils.js?v=2"></script>
+  <script src="js/auth.js?v=2"></script>
+  <script src="js/api.js?v=2"></script>
+  <script src="js/cart.js?v=2"></script>
+  <script src="js/checkout.js?v=2"></script>
+  <script>
+
+    // ── Galería: cambiar imagen activa ────────────────────
+    let currentImgIndex = 0;
+    let galleryImages   = [];
+
+    function setActiveImage(index) {
+      if (!galleryImages.length) return;
+      currentImgIndex = (index + galleryImages.length) % galleryImages.length;
+
+      const mainImg = document.getElementById('gallery-main-img');
+      if (mainImg) {
+        mainImg.style.opacity = '0';
+        setTimeout(() => {
+          mainImg.src = galleryImages[currentImgIndex];
+          mainImg.style.opacity = '1';
+        }, 150);
+      }
+
+      document.querySelectorAll('.gallery-thumb').forEach((thumb, i) => {
+        thumb.classList.toggle('active', i === currentImgIndex);
+      });
+    }
+
+    // ── Renderizar producto ───────────────────────────────
+    async function loadProduct() {
+      const productId = getProductIdFromURL();
+      const detail    = document.getElementById('product-detail');
+      const reviewsSection = document.getElementById('product-reviews');
+
+      if (!productId) {
+        detail.innerHTML = '<p class="product-loading">Producto no encontrado.</p>';
+        return;
+      }
+
+      try {
+        const { product } = await api.getProduct(productId);
+
+        // El backend devuelve image_url; si hay múltiples imágenes
+        // vendrían como array. Por ahora usamos la única disponible.
+        galleryImages = Array.isArray(product.images)
+          ? product.images
+          : [product.image_url || 'https://placehold.co/600x450/3a3a3a/00c8e0?text=Sin+imagen'];
+
+        // Actualizar título del documento
+        document.title = `${product.name} — Gravity Tech`;
+
+        // Construir galería y info
+        detail.innerHTML = `
+          <!-- Galería -->
+          <div class="product-gallery">
+            <div class="gallery-thumbnails" id="gallery-thumbs">
+              ${galleryImages.map((src, i) => `
+                <img
+                  class="gallery-thumb ${i === 0 ? 'active' : ''}"
+                  src="${src}"
+                  alt="Vista ${i + 1}"
+                  onerror="this.src='https://placehold.co/90x70/3a3a3a/00c8e0?text=IMG'"
+                  onclick="setActiveImage(${i})"
+                >
+              `).join('')}
+            </div>
+            <div class="gallery-main">
+              <img
+                id="gallery-main-img"
+                class="gallery-main-img"
+                src="${galleryImages[0]}"
+                alt="${product.name}"
+                onerror="this.src='https://placehold.co/600x450/3a3a3a/00c8e0?text=Sin+imagen'"
+              >
+              <button class="gallery-btn prev" onclick="setActiveImage(currentImgIndex - 1)">&lt;</button>
+              <button class="gallery-btn next" onclick="setActiveImage(currentImgIndex + 1)">&gt;</button>
+            </div>
+          </div>
+
+          <!-- Info -->
+          <div class="product-info">
+            <h1 class="product-name">${product.name}</h1>
+            <div class="product-rating" id="product-rating">
+              ${renderStars(0)}
+              <span class="rating-text">Sin reseñas aún</span>
+            </div>
+            <p class="product-description">${product.description || ''}</p>
+            <span class="product-price">$${formatPrice(product.price)}</span>
+            <span class="product-stock">${product.stock} unidades disponibles</span>
+            <button class='btn-add-cart' onclick='addToCart(${product.id})'>🛒 Agregar al carrito</button>
+          </div>
+        `;
+
+        // Cargar reseñas
+        await loadReviews(productId, product);
+
+      } catch (err) {
+        detail.innerHTML = '<p class="product-loading">Error al cargar el producto.</p>';
+        console.error(err);
+      }
+    }
+
+    // ── Renderizar reseñas ────────────────────────────────
+    async function loadReviews(productId, product) {
+      const reviewsSection = document.getElementById('product-reviews');
+      const reviewsList    = document.getElementById('reviews-list');
+      const ratingEl       = document.getElementById('product-rating');
+
+      // El modelo Product no tiene endpoint de reseñas aún,
+      // pero la tabla RESENA existe en el ER. Por ahora usamos
+      // los datos del producto si vienen con reseñas incluidas,
+      // o mostramos la sección vacía lista para cuando el endpoint exista.
+      const reviews = product.reviews || [];
+
+      reviewsSection.style.display = 'block';
+
+      if (!reviews.length) {
+        reviewsList.innerHTML = '<p class="reviews-empty">Este producto aún no tiene reseñas.</p>';
+        return;
+      }
+
+      // Calcular promedio
+      const avg = reviews.reduce((sum, r) => sum + r.puntuacion, 0) / reviews.length;
+
+      // Actualizar rating en la info
+      if (ratingEl) {
+        ratingEl.innerHTML = `
+          ${renderStars(avg)}
+          <span class="rating-text">${avg.toFixed(1)}/5 (${reviews.length} reseña${reviews.length !== 1 ? 's' : ''})</span>
+        `;
+      }
+
+      // Renderizar cada reseña
+      reviewsList.innerHTML = '';
+      reviews.forEach(review => {
+        const card = document.createElement('div');
+        card.classList.add('review-card');
+        card.innerHTML = `
+          <p class="review-author"><strong>Usuario:</strong> ${review.comentario}</p>
+          <div class="review-rating">
+            ${renderStars(review.puntuacion)}
+            <span>${review.puntuacion}/5</span>
+          </div>
+        `;
+        reviewsList.appendChild(card);
+      });
+    }
+
+    // ── Iniciar ───────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', loadProduct);
+  </script>
+
+</body>
+</html>

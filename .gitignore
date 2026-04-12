@@ -1,0 +1,94 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# SECURITY: Never commit sensitive files
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Dependencias de Node
+node_modules/
+.npm
+package-lock.json
+yarn.lock
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Variables de entorno (NEVER COMMIT)
+.env
+.env.local
+.env.*.local
+.env.*.test
+.env.vault
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# Carpetas de editores o IDEs
+.vscode/
+.idea/
+.claude/
+
+# Archivos temporales de ramas
+branches*.txt
+*.swp
+*.swo
+*~
+.vim/
+.emacs.d/
+.sublime-workspace
+
+# Seguridad: Claves criptográficas
+*.pem
+*.key
+*.pub
+private_key*
+public_key*
+
+# Certificados SSL
+*.crt
+*.cer
+*.pfx
+
+# Carpetas de compilación
+dist/
+build/
+.next/
+out/
+.webpack/
+
+# Carpetas de testing
+coverage/
+.nyc_output/
+
+# IDE temporales
+.vscode/launch.json
+.vscode/settings.json
+jsconfig.json
+tsconfig.json.bak
+
+# macOS específico
+.AppleDouble
+.LSOverride
+.TemporaryItems
+
+# Windows específico
+desktop.ini
+$RECYCLE.BIN/
+
+# Otros temporales
+*.tmp
+*.temp
+.cache/

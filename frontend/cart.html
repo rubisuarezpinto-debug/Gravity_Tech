@@ -1,0 +1,37 @@
+<!--
+  =========================================================
+  cart.html — Carrito de compras
+  =========================================================
+
+  DESCRIPCIÓN:
+    Lista todos los productos que el usuario ha agregado al carrito
+    con su cantidad, subtotal por item y total general.
+    Permite modificar cantidades, eliminar items y continuar al checkout.
+
+  CONEXIÓN CON EL BACKEND:
+    1. Leer carrito del usuario autenticado:
+         const { items } = await api.getCart();
+         → GET http://localhost:3000/api/cart
+         → Header requerido: Authorization: Bearer <JWT>
+
+    2. Actualizar cantidad de un item:
+         await api.updateCartItem(itemId, { quantity });
+         → PUT http://localhost:3000/api/cart/:itemId
+
+    3. Eliminar un item:
+         await api.removeCartItem(itemId);
+         → DELETE http://localhost:3000/api/cart/:itemId
+
+    4. Vaciar todo el carrito:
+         await api.clearCart();
+         → DELETE http://localhost:3000/api/cart
+
+    5. Ir al checkout:
+         window.location.href = 'checkout.html';
+
+  SCRIPTS A INCLUIR (en este orden):
+    <script src="../js/utils.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/cart.js"></script>
+-->

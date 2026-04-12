@@ -1,0 +1,1 @@
+Tables list: producto_categoria, tipo_envio, usuario, direccion, usuario_metodo_pago, metodo_pago, marca, producto, categoria, imagen, estado_orden, carrito, carrito_item, orden_item, pago, auditoria, resena, orden
