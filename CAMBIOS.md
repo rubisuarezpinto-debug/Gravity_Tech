@@ -330,4 +330,141 @@ Había tres problemas combinados:
 
 ---
 
+---
+
+## Correcciones adicionales (octava ronda)
+
+### 23. Conflicto de merge sin resolver en `admin.css`
+
+**Qué estaba mal:** El archivo `frontend/css/admin.css` tenía marcadores de
+conflicto de Git (`<<<<<<< HEAD`, `=======`, `>>>>>>> origin/dev_Danna`) sin
+resolver. Esto hacía que el CSS fuera inválido y el botón de imagen en el
+panel de administrador no tuviera ningún estilo aplicado.
+
+**Qué se hizo:** Se conservó la versión de `dev_Danna` que agrega los estilos
+del botón `.btn-item-img` (botón azul para actualizar la imagen de un
+producto), ya que `admin.js` lo usa y sin el estilo el botón aparecía sin
+formato. Se eliminaron los marcadores de conflicto.
+
+**Archivo:** `frontend/css/admin.css`
+
+---
+
+
+---
+
+### 24. Las reseñas en product.html no llamaban al backend
+
+**Qué estaba mal:** La función `loadReviews` usaba `product.reviews || []`
+pero el endpoint `GET /api/reviews/product/:id` existe y nunca se llamaba.
+La sección siempre mostraba "Este producto aún no tiene reseñas".
+
+**Qué se hizo:** Se reemplazó la línea por una llamada real a
+`api.getReviews(productId)` y se usa el promedio calculado por el backend
+(`stats.promedio`) en lugar de calcularlo manualmente en el frontend.
+
+**Archivo:** `frontend/product.html`
+
+---
+
+
+---
+
+### 25. Campo de marca faltante en formulario de administrador
+
+**Qué estaba mal:** `admin.js` buscaba `document.getElementById('admin-brand')`
+pero el formulario en `admin-products.html` no tenía ese campo. Esto causaba
+un error silencioso al crear o editar productos.
+
+**Qué se hizo:** Se agregó el campo `<select id="admin-brand">` con las marcas
+reales de la base de datos (Sony, Nike, Samsung, Apple, Adidas, Logitech,
+Xiaomi, LG). También se corrigieron las opciones de categoría para que
+coincidan con los nombres reales en la tabla `ecommerce.categoria`.
+
+**Archivo:** `frontend/admin-products.html`
+
+---
+
+
+---
+
+### 26. Opciones del filtro de categoría no coincidían con la base de datos
+
+**Qué estaba mal:** El `<select id="filter-category">` en `index.html` tenía
+las opciones "Computadores", "Celulares", "Accesorios" y "Videojuegos", pero
+las categorías reales en la tabla `ecommerce.categoria` son: Tecnología,
+Calzado, Ropa, Deportes, Hogar, Accesorios y Libros. El filtro no funcionaba
+para ninguna opción excepto "Accesorios".
+
+**Qué se hizo:** Se reemplazaron las opciones del select por los nombres
+exactos de las categorías en la base de datos.
+
+**Archivo:** `frontend/index.html`
+---
+
+
+---
+
+### 27. Constraint UNIQUE aplicado en tabla carrito_item
+
+**Qué estaba mal:** El modelo `Cart.js` usa `ON CONFLICT (id_carrito, id_producto)`
+para hacer upsert al agregar productos al carrito, pero la tabla no tenía el
+constraint UNIQUE requerido. Esto causaba un error de base de datos cada vez
+que se intentaba agregar un producto que ya estaba en el carrito.
+
+**Qué se hizo:** Se ejecutó el script `backend/database/ddl/04-migrations.sql`
+directamente en la base de datos, agregando el constraint
+`uq_carrito_item_carrito_producto`.
+
+**Archivo:** `backend/database/ddl/04-migrations.sql`
+
+---
+
+
+---
+
+### 28. Credencial hardcodeada en execute_command.sh
+
+**Qué estaba mal:** El archivo `execute_command.sh` tenía la contraseña
+de la base de datos escrita directamente en el código (`--password "ec2026"`),
+lo que representa un riesgo de seguridad si el archivo es versionado en Git.
+
+**Qué se hizo:** Se reemplazó la contraseña hardcodeada por una variable
+de entorno `${DB_PASSWORD}` que se lee desde el archivo `.env`.
+
+**Archivo:** `backend/database/Scripts/02-insert-data/execute_command.sh`
+
+---
+
+
+---
+
+### 29. Carpeta schema/ obsoleta movida a _deprecated/
+
+**Qué estaba mal:** La carpeta `backend/database/schema/` contenía un esquema
+alternativo en inglés (`CREATE TABLE users`, `CREATE TABLE products`, etc.)
+que ya no se usa. Su presencia causaba confusión sobre cuál era el esquema
+real del proyecto.
+
+**Qué se hizo:** Se movió la carpeta a `backend/database/_deprecated/schema/`
+para conservar el historial sin que interfiera con el desarrollo activo.
+
+**Archivo:** `backend/database/schema/` → `backend/database/_deprecated/schema/`
+
+---
+
+---
+
+### 30. El checkout fallaba por nombre de estado incorrecto
+
+**Qué estaba mal:** El controlador llamaba a `Order.updateStatus(order.id, 'paid')`
+pero en la tabla `ecommerce.estado_orden` el estado se llama `'Pago Confirmado'`,
+no `'paid'`. Esto causaba que `id_estado` quedara nulo y la orden fallara.
+
+**Qué se hizo:** Se cambió `'paid'` por `'Pago Confirmado'` en el controlador
+de checkout.
+
+**Archivo:** `backend/src/controllers/orders.controller.js`
+
+
 *Última actualización: 12 de abril de 2026*
