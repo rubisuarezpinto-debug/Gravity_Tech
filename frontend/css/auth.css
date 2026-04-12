@@ -204,3 +204,51 @@
     max-width: 100%;
   }
 }
+
+/* ════════════════════════════════════════
+   AUTH PAGE — Login y Registro como página completa
+   (login.html, register.html)
+════════════════════════════════════════ */
+
+/* Contenedor que centra la tarjeta en la página */
+.auth-page-container {
+  min-height: calc(100vh - 70px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl) var(--spacing-md);
+  background-color: var(--page-bg);
+}
+
+/* Tarjeta del formulario */
+.auth-card {
+  background-color: #1e1e1e;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 200, 224, 0.08);
+  width: 100%;
+  max-width: 420px;
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  animation: authModalIn 0.25s ease;
+}
+
+/* Línea de acento superior */
+.auth-card::before {
+  content: '';
+  display: block;
+  height: 3px;
+  background: linear-gradient(to right, var(--accent-cyan), transparent);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  margin: calc(var(--spacing-xl) * -1) calc(var(--spacing-xl) * -1) 0;
+  border-radius: 10px 10px 0 0;
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: var(--spacing-lg);
+    max-width: 100%;
+  }
+}

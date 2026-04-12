@@ -18,21 +18,25 @@ function openAdminPanel() {
 }
 
 function closeAdminPanel() {
-  document.getElementById('admin-overlay').classList.remove('open');
+  const overlay = document.getElementById('admin-overlay');
+  if (overlay) overlay.classList.remove('open');
+  else window.location.href = 'index.html';
 }
 
 // ── Limpiar formulario ────────────────────────────────────
 function clearAdminForm() {
   document.getElementById('admin-title').value       = '';
   document.getElementById('admin-category').value    = '';
+  document.getElementById('admin-brand').value       = '';
   document.getElementById('admin-description').value = '';
   document.getElementById('admin-stock').value       = '';
   document.getElementById('admin-price').value       = '';
-  document.getElementById('admin-image').value       = '';
+  document.getElementById('admin-image')?.value      = '';
 
-  ['admin-title', 'admin-category', 'admin-stock', 'admin-price'].forEach(id =>
-    document.getElementById(id).classList.remove('error')
-  );
+  ['admin-title', 'admin-category', 'admin-brand', 'admin-stock', 'admin-price'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('error');
+  });
 
   showAdminError('');
 
@@ -40,9 +44,11 @@ function clearAdminForm() {
 
   // Restablecer botón a modo "Crear"
   const btn = document.getElementById('btn-admin-create');
-  btn.textContent      = 'Crear';
-  btn.dataset.editId   = '';
-  btn.dataset.editMode = 'false';
+  if (btn) {
+    btn.textContent      = 'Crear';
+    btn.dataset.editId   = '';
+    btn.dataset.editMode = 'false';
+  }
 }
 
 // ── Mostrar error ─────────────────────────────────────────
@@ -57,6 +63,8 @@ function showAdminError(message) {
 async function loadAdminProducts() {
   const listEl   = document.getElementById('admin-products-list');
   const countEl  = document.getElementById('admin-product-count');
+  if (!listEl) return;
+
   listEl.innerHTML = '<p class="admin-list-empty">Cargando...</p>';
 
   try {
@@ -73,17 +81,32 @@ async function loadAdminProducts() {
     products.forEach(p => {
       const item = document.createElement('div');
       item.classList.add('admin-product-item');
+      item.dataset.product = JSON.stringify(p);
       item.innerHTML = `
         <div class="item-info">
           <span class="item-name">${p.name}</span>
-          <span class="item-meta">Cat. ${p.category_id} — $${Number(p.price).toLocaleString('es-CO')}</span>
+          <span class="item-meta">Cat. ${p.id_categoria || p.category_id} — $${Number(p.price).toLocaleString('es-CO')}</span>
         </div>
         <span class="item-stock">Stock: ${p.stock}</span>
         <div class="item-actions">
-          <button class="btn-item-edit" title="Editar" onclick='fillEditForm(${JSON.stringify(p)})'>✏️</button>
-          <button class="btn-item-delete" title="Eliminar" onclick='deleteProduct(${p.id}, "${p.name}")'>🗑️</button>
+          <button class="btn-item-edit" title="Editar">✏️</button>
+          <button class="btn-item-img" title="Actualizar imagen">🖼️</button>
+          <button class="btn-item-delete" title="Eliminar">🗑️</button>
         </div>
       `;
+
+      item.querySelector('.btn-item-edit').addEventListener('click', () => {
+        fillEditForm(JSON.parse(item.dataset.product));
+      });
+
+      item.querySelector('.btn-item-img').addEventListener('click', () => {
+        updateProductImage(p.id, p.image_url || '');
+      });
+
+      item.querySelector('.btn-item-delete').addEventListener('click', () => {
+        deleteProduct(p.id, p.name);
+      });
+
       listEl.appendChild(item);
     });
 
@@ -93,14 +116,29 @@ async function loadAdminProducts() {
   }
 }
 
+async function updateProductImage(productId, currentUrl) {
+  const newUrl = prompt('URL de la imagen:', currentUrl);
+  if (newUrl === null) return; // canceló
+
+  try {
+    await api.updateProductImage(productId, newUrl);
+    await loadAdminProducts();
+  } catch (err) {
+    alert('Error al actualizar la imagen: ' + err.message);
+  }
+}
+
 // ── Rellenar formulario para editar ──────────────────────
 function fillEditForm(product) {
   document.getElementById('admin-title').value       = product.name        || '';
-  document.getElementById('admin-category').value    = product.category_id || '';
+  document.getElementById('admin-category').value    = product.category_id || product.id_categoria || '';
+  document.getElementById('admin-brand').value       = product.brand_id    || product.id_marca || '';
   document.getElementById('admin-description').value = product.description || '';
   document.getElementById('admin-stock').value       = product.stock       || '';
   document.getElementById('admin-price').value       = product.price       || '';
-  document.getElementById('admin-image').value       = product.image_url   || '';
+  
+  const imgEl = document.getElementById('admin-image');
+  if (imgEl) imgEl.value = product.image_url || '';
 
   const btn = document.getElementById('btn-admin-create');
   btn.textContent      = 'Actualizar';
@@ -116,7 +154,6 @@ function fillEditForm(product) {
     btn.insertAdjacentElement('afterend', cancelBtn);
   }
 
-  // Scroll al formulario en móvil
   document.querySelector('.admin-form-col')?.scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -125,6 +162,7 @@ function validateAdminForm() {
   const required = [
     { id: 'admin-title',    label: 'Título' },
     { id: 'admin-category', label: 'Categoría' },
+    { id: 'admin-brand',    label: 'Marca' },
     { id: 'admin-stock',    label: 'Stock' },
     { id: 'admin-price',    label: 'Precio' },
   ];
@@ -132,8 +170,8 @@ function validateAdminForm() {
   let valid = true;
   required.forEach(({ id, label }) => {
     const el = document.getElementById(id);
-    if (!el.value.trim()) {
-      el.classList.add('error');
+    if (!el || !el.value.trim()) {
+      if (el) el.classList.add('error');
       valid = false;
     } else {
       el.classList.remove('error');
@@ -155,10 +193,11 @@ async function submitAdminForm() {
   const data = {
     name:        document.getElementById('admin-title').value.trim(),
     category_id: Number(document.getElementById('admin-category').value),
+    brand_id:    Number(document.getElementById('admin-brand').value),
     description: document.getElementById('admin-description').value.trim(),
     stock:       Number(document.getElementById('admin-stock').value),
     price:       Number(document.getElementById('admin-price').value),
-    image_url:   document.getElementById('admin-image').value.trim() || null,
+    image_url:   document.getElementById('admin-image')?.value.trim() || null,
   };
 
   btn.disabled    = true;
@@ -174,7 +213,6 @@ async function submitAdminForm() {
 
     clearAdminForm();
     await loadAdminProducts();
-    // Refrescar catálogo visible
     if (typeof loadProducts === 'function') loadProducts();
 
   } catch (err) {
@@ -196,29 +234,21 @@ async function deleteProduct(productId, productName) {
     if (typeof loadProducts === 'function') loadProducts();
   } catch (err) {
     alert('Error al eliminar el producto: ' + (err.message || ''));
-    console.error('deleteProduct error:', err);
   }
 }
 
 // ── Event listeners ───────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  // Cerrar modal
-  document.getElementById('admin-close-btn')
-    ?.addEventListener('click', closeAdminPanel);
+  document.getElementById('btn-admin-create')?.addEventListener('click', submitAdminForm);
+  document.getElementById('admin-close-btn')?.addEventListener('click', closeAdminPanel);
+  
+  if (document.getElementById('admin-products-list') && !document.getElementById('admin-overlay')) {
+    if (auth.requireAdmin()) {
+      loadAdminProducts();
+    }
+  }
 
-  document.getElementById('admin-overlay')
-    ?.addEventListener('click', (e) => {
-      if (e.target.id === 'admin-overlay') closeAdminPanel();
-    });
-
-  // Botón crear/guardar
-  document.getElementById('btn-admin-create')
-    ?.addEventListener('click', submitAdminForm);
-
-  // Botón "Editar" del header admin abre el panel
-  document.querySelector('a[href="admin-products.html"]')
-    ?.addEventListener('click', (e) => {
-      e.preventDefault();
-      openAdminPanel();
-    });
+  document.getElementById('admin-overlay')?.addEventListener('click', (e) => {
+    if (e.target.id === 'admin-overlay') closeAdminPanel();
+  });
 });

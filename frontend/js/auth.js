@@ -132,8 +132,7 @@ window.auth = { setSession, getToken, getUser, isLoggedIn, isAdmin, logout, requ
 // ════════════════════════════════════════
 
 function openLogin() {
-  document.getElementById('login-overlay').classList.add('open');
-  clearAuthForm('login');
+  window.location.href = 'login.html';
 }
 
 function closeLogin() {
@@ -141,8 +140,7 @@ function closeLogin() {
 }
 
 function openRegister() {
-  document.getElementById('register-overlay').classList.add('open');
-  clearAuthForm('register');
+  window.location.href = 'register.html';
 }
 
 function closeRegister() {
@@ -176,13 +174,10 @@ function showAuthError(type, message) {
 
 // ── Actualizar header según estado de sesión ─────────────
 function updateHeaderAuth() {
-  // Si la página tiene renderHeader() (index.html), usarla
-  if (typeof renderHeader === 'function') {
-    renderHeader();
+  if (typeof window.renderHeader === 'function') {
+    window.renderHeader();
     return;
   }
-
-  // Fallback para product.html y otras páginas
   const btnLogin = document.getElementById('btn-login-header');
   if (!btnLogin) return;
 

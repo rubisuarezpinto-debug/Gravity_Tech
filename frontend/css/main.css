@@ -223,6 +223,14 @@ a {
 }
 
 /* ════════════════════════════════════════
+   ANIMACIONES
+════════════════════════════════════════ */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ════════════════════════════════════════
    GRID DE PRODUCTOS
 ════════════════════════════════════════ */
 .products {
@@ -245,6 +253,7 @@ a {
   flex-direction: column;
   gap: var(--spacing-xs);
   transition: transform var(--transition-mid), box-shadow var(--transition-mid), background-color var(--transition-mid);
+  animation: fadeInUp 0.3s ease both;
 }
 
 .product:hover {
@@ -273,6 +282,18 @@ a {
   display: block;
 }
 
+/* Enlace que envuelve imagen + título + descripción */
+.product .product-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.product .product-link:hover h2 {
+  text-decoration: underline;
+  text-decoration-color: var(--accent-cyan);
+}
+
 /* Nombre del producto */
 .product h2 {
   font-size: var(--font-size-md);
@@ -289,6 +310,11 @@ a {
   margin-bottom: var(--spacing-sm);
   flex: 1;
   line-height: 1.5;
+  /* Truncar a 3 líneas para mantener altura uniforme en el grid */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* Fila de badges: categoría + stock */
@@ -320,6 +346,18 @@ a {
   font-size: var(--font-size-xs);
   font-weight: 600;
   white-space: nowrap;
+}
+
+/* Stock bajo (< 5 unidades) */
+.product .badge-stock.stock-low {
+  background-color: rgba(192, 57, 43, 0.25);
+  color: #e74c3c;
+}
+
+/* Stock medio (5-19 unidades) */
+.product .badge-stock.stock-mid {
+  background-color: rgba(243, 156, 18, 0.2);
+  color: #f39c12;
 }
 
 /* Precio */
