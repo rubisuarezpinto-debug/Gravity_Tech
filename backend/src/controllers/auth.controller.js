@@ -17,7 +17,7 @@ const register = async (req, res, next) => {
     if (existing) {
       return res.status(409).json({
         success: false,
-        error: 'Email is already registered',
+        error: 'Este correo ya está registrado',
       });
     }
 
@@ -58,7 +58,7 @@ const login = async (req, res, next) => {
       // Use generic message to prevent email enumeration attacks
       return res.status(401).json({
         success: false,
-        error: 'Invalid email or password',
+        error: 'Correo o contraseña incorrectos',
       });
     }
 
@@ -68,7 +68,7 @@ const login = async (req, res, next) => {
       // Use same generic message for both cases
       return res.status(401).json({
         success: false,
-        error: 'Invalid email or password',
+        error: 'Correo o contraseña incorrectos',
       });
     }
 
@@ -103,7 +103,7 @@ const me = async (req, res, next) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        error: 'User not found',
+        error: 'Usuario no encontrado',
       });
     }
 

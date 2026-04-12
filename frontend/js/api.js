@@ -72,7 +72,7 @@ async function request(method, path, body = null) {
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || `Error ${res.status}`);
+    throw new Error(err.error || err.message || 'Ocurrió un error. Intenta nuevamente');
   }
 
   return res.json();
