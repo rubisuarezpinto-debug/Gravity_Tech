@@ -281,6 +281,45 @@ El cambio aplica automáticamente a `login.html` y `register.html` ya que ambas 
 
 ---
 
+---
+
+## Correcciones adicionales (séptima ronda)
+
+### 22. Los mensajes de error aparecían en inglés o como códigos técnicos ("Error 401")
+
+**Qué estaba mal:** Cuando algo fallaba (contraseña incorrecta, correo ya registrado, sesión expirada, etc.) los mensajes que veía el usuario eran en inglés o simplemente decían "Error 401", "Error 403", que no le dicen nada útil a alguien que no conoce los códigos HTTP.
+
+Había tres problemas combinados:
+
+1. **El backend enviaba textos en inglés** — el controlador de autenticación devolvía mensajes como "Email is already registered" o "Invalid email or password".
+2. **El manejador global de errores también tenía mensajes en inglés** — cuando ocurre un error del servidor, el código de respaldo decía cosas como "Bad request", "Unauthorized", "Forbidden".
+3. **El frontend leía el campo equivocado** — el backend envía el mensaje de error dentro del campo `error`, pero `api.js` buscaba el campo `message`. Al no encontrarlo, mostraba "Error 401" en lugar del mensaje real.
+
+**Qué se hizo:**
+
+- En `backend/src/controllers/auth.controller.js` se tradujeron los mensajes de error a español natural:
+  - "Email is already registered" → "Este correo ya está registrado"
+  - "Invalid email or password" → "Correo o contraseña incorrectos"
+  - "User not found" → "Usuario no encontrado"
+
+- En `backend/src/middlewares/errorHandler.js` se tradujo el mapa de mensajes de reserva:
+  - 400 → "Solicitud inválida"
+  - 401 → "No autorizado. Por favor inicia sesión"
+  - 403 → "No tienes permiso para realizar esta acción"
+  - 404 → "El recurso solicitado no existe"
+  - 409 → "Ya existe un registro con esos datos"
+  - 422 → "Los datos enviados no son válidos"
+  - 500 → "Ocurrió un error en el servidor. Intenta nuevamente"
+
+- En `frontend/js/api.js` se corrigió que lea el campo correcto de la respuesta:
+  - Antes: `err.message` (siempre vacío porque el backend no manda ese campo)
+  - Ahora: `err.error || err.message || 'Ocurrió un error. Intenta nuevamente'`
+  - Con esto, el mensaje real del servidor (ya en español) llega al usuario correctamente.
+
+**Archivos:** `backend/src/controllers/auth.controller.js`, `backend/src/middlewares/errorHandler.js`, `frontend/js/api.js`
+
+---
+
 ## Cosas pendientes (para próximas sesiones)
 
 - Conectar las reseñas en `product.html` con el endpoint real `GET /api/reviews/product/:id` (el endpoint existe pero el frontend no lo llama, siempre muestra vacío).
