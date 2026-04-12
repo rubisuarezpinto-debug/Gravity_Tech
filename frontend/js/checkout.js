@@ -8,14 +8,11 @@
 
 // ── Abrir modal ───────────────────────────────────────────
 async function openCheckout() {
-<<<<<<< HEAD
-=======
   if (!auth.isLoggedIn()) {
     closeCart();
     openLogin();
     return;
   }
->>>>>>> origin/dev_Danna
   closeCart();
   await renderCheckoutSummary();
   document.getElementById('checkout-overlay').classList.add('open');
@@ -52,15 +49,9 @@ async function renderCheckoutSummary() {
       listEl.appendChild(row);
     });
 
-<<<<<<< HEAD
-    const formatted = `$ ${total.toLocaleString('es-CO')}`;
-    if (totalEl)  totalEl.textContent  = formatted;
-    if (btnTotal) btnTotal.textContent = `$${total.toLocaleString('es-CO')}`;
-=======
     const formatted = formatPrice(total);
     if (totalEl)  totalEl.textContent  = formatted;
     if (btnTotal) btnTotal.textContent = formatPrice(total);
->>>>>>> origin/dev_Danna
 
   } catch (err) {
     listEl.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">Error al cargar el resumen.</p>';

@@ -44,10 +44,6 @@ function closeCart() {
 }
 
 // ── Actualizar contador del header ────────────────────────
-async function formatPrice(price) {
-  return `$${Number(price).toLocaleString('es-CO')} COP`;
-}
-
 async function updateCartCount() {
   try {
     const { items } = await api.getCart();

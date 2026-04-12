@@ -1,15 +1,21 @@
 const db = require('../config/db');
 
-/** Devuelve todos los productos disponibles. */
+/** Devuelve todos los productos disponibles con su primera categoría. */
 const findAll = async () => {
   const { rows } = await db.query(
-    `SELECT p.id_producto AS id, p.nombre AS name, p.descripcion AS description, 
-            p.precio AS price, p.stock, i.url AS image_url
+    `SELECT p.id_producto AS id, p.nombre AS name, p.descripcion AS description,
+            p.precio AS price, p.stock, i.url AS image_url,
+            c.nombre AS category
      FROM ecommerce.producto p
      LEFT JOIN (
-       SELECT DISTINCT ON (id_producto) id_producto, url 
+       SELECT DISTINCT ON (id_producto) id_producto, url
        FROM ecommerce.imagen
      ) i ON i.id_producto = p.id_producto
+     LEFT JOIN (
+       SELECT DISTINCT ON (id_producto) id_producto, id_categoria
+       FROM ecommerce.producto_categoria
+     ) pc ON pc.id_producto = p.id_producto
+     LEFT JOIN ecommerce.categoria c ON c.id_categoria = pc.id_categoria
      WHERE p.estado = 'DISPONIBLE'
      ORDER BY p.id_producto DESC`
   );

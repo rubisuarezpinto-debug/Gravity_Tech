@@ -99,11 +99,75 @@
     <p>Contacto: soporte@gravitytech.com | Tel: +57 300 123 4567</p>
   </footer>
 
-  <!-- Scripts -->
-  <script src="js/utils.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/cart.js"></script>
-  <script src="js/index.js"></script>
+  <!-- Cart sidebar -->
+  <div class="cart-overlay" id="cart-overlay"></div>
+  <aside class="cart-sidebar" id="cart-sidebar">
+    <div class="cart-header">
+      <h2>🛒 Carrito de Compras</h2>
+      <button class="cart-close-btn" id="cart-close-btn" aria-label="Cerrar carrito">✕</button>
+    </div>
+    <div class="cart-items" id="cart-items-list">
+      <p class="cart-empty">Tu carrito está vacío.</p>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-summary-row">
+        <span>Total de artículos:</span>
+        <span id="cart-item-count">0</span>
+      </div>
+      <div class="cart-total-row">
+        <span class="cart-total-label">Total a pagar:</span>
+        <span class="cart-total-value" id="cart-total-price">$ 0 COP</span>
+      </div>
+      <button class="btn-checkout" id="btn-checkout">💳 Finalizar Compra</button>
+    </div>
+  </aside>
+
+  <!-- Checkout modal -->
+  <div class="checkout-overlay" id="checkout-overlay">
+    <div class="checkout-modal" role="dialog" aria-modal="true">
+      <h2 class="checkout-title">💳 Finalizar Compra</h2>
+      <section>
+        <p class="checkout-section-title">Resumen del pedido</p>
+        <div class="checkout-order-summary">
+          <div id="checkout-items-list"></div>
+          <hr class="checkout-divider">
+          <div class="checkout-total-row">
+            <span>Total:</span>
+            <span class="total-value" id="checkout-total">$ 0</span>
+          </div>
+        </div>
+      </section>
+      <section class="checkout-shipping">
+        <p class="checkout-section-title">Método de pago</p>
+        <div class="checkout-user-email" id="checkout-user-email">Compra asociada a: cargando...</div>
+        <div class="checkout-fields">
+          <div class="checkout-field">
+            <label for="checkout-payment">Método de pago *</label>
+            <select id="checkout-payment" required>
+              <option value="">Seleccionar</option>
+              <option value="card">Tarjeta de crédito / débito</option>
+              <option value="transfer">Transferencia bancaria</option>
+              <option value="cash">Pago contra entrega</option>
+            </select>
+          </div>
+          <div class="checkout-field">
+            <label for="checkout-payment-data">Referencia / Número de tarjeta</label>
+            <input type="text" id="checkout-payment-data" placeholder="Número tarjeta" disabled>
+          </div>
+        </div>
+      </section>
+      <button class="btn-confirm-purchase" id="btn-confirm-purchase">
+        Confirmar compra - <span id="checkout-btn-total">$0</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Scripts (auth antes de api porque api depende de window.auth) -->
+  <script src="js/utils.js?v=2"></script>
+  <script src="js/auth.js?v=2"></script>
+  <script src="js/api.js?v=2"></script>
+  <script src="js/cart.js?v=2"></script>
+  <script src="js/checkout.js?v=2"></script>
+  <script src="js/index.js?v=2"></script>
 </body>
 </html>
