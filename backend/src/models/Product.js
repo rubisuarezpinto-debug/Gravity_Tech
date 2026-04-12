@@ -107,6 +107,14 @@ const update = async (id, { name, description, price, stock, image_url }) => {
   return product;
 };
 
+const updateImage = async (id, image_url) => {
+  await db.query(
+    `UPDATE ecommerce.imagen SET url = $1 WHERE id_producto = $2`,
+    [image_url, id]
+  );
+  return await findById(id);
+};
+
 /**
  * Desactiva (soft-delete) un producto.
  * @param {number} id
@@ -115,4 +123,4 @@ const remove = async (id) => {
   await db.query("UPDATE ecommerce.producto SET estado = 'NO_DISPONIBLE' WHERE id_producto = $1", [id]);
 };
 
-module.exports = { findAll, findById, create, update, remove };
+module.exports = { findAll, findById, create, update, updateImage, remove };

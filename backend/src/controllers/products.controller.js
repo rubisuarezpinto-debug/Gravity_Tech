@@ -42,6 +42,18 @@ const update = async (req, res, next) => {
   }
 };
 
+const updateImage = async (req, res, next) => {
+  try {
+    const { image_url } = req.body;
+    if (!image_url) return res.status(400).json({ message: 'image_url requerida' });
+    const product = await Product.updateImage(req.params.id, image_url);
+    if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
+    res.json({ product });
+  } catch (err) {
+    next(err);
+  }
+};
+
 /** DELETE /api/products/:id  (admin) */
 const remove = async (req, res, next) => {
   try {
@@ -52,4 +64,4 @@ const remove = async (req, res, next) => {
   }
 };
 
-module.exports = { getAll, getOne, create, update, remove };
+module.exports = { getAll, getOne, create, update, updateImage, remove };

@@ -44,6 +44,10 @@ function closeCart() {
 }
 
 // ── Actualizar contador del header ────────────────────────
+async function formatPrice(price) {
+  return `$${Number(price).toLocaleString('es-CO')} COP`;
+}
+
 async function updateCartCount() {
   try {
     const { items } = await api.getCart();
@@ -107,7 +111,7 @@ async function renderCart() {
     });
 
     if (countEl) countEl.textContent = totalItems;
-    if (totalEl) totalEl.textContent = `$ ${totalPrice.toLocaleString('es-CO')} COP`;
+    if (totalEl) totalEl.textContent = formatPrice(totalPrice);
 
   } catch (err) {
     list.innerHTML = '<p class="cart-empty">Inicia sesión para ver tu carrito.</p>';

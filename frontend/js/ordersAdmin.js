@@ -24,9 +24,13 @@ function openOrdersPanel() {
 }
 
 function closeOrdersPanel() {
+<<<<<<< HEAD
   const overlay = document.getElementById('orders-overlay');
   if (overlay) overlay.classList.remove('open');
   else window.location.href = 'admin-products.html';
+=======
+  document.getElementById('orders-overlay').classList.remove('open');
+>>>>>>> origin/dev_Danna
 }
 
 // ── Cargar todas las órdenes ──────────────────────────────
@@ -57,8 +61,12 @@ function renderStats(orders) {
 
   document.getElementById('stat-total-orders').textContent   = totalOrders;
   document.getElementById('stat-total-products').textContent = totalProducts;
+<<<<<<< HEAD
   document.getElementById('stat-total-sales').textContent    =
     `$${totalSales.toLocaleString('es-CO')}`;
+=======
+  document.getElementById('stat-total-sales').textContent = formatPrice(totalSales);
+>>>>>>> origin/dev_Danna
 }
 
 function resetStats() {
@@ -101,7 +109,11 @@ function renderOrders(orders) {
         </div>
         <div>
           <div class="order-total-label">Total</div>
+<<<<<<< HEAD
           <div class="order-total">$${Number(order.total).toLocaleString('es-CO')}</div>
+=======
+          <div class="order-total">${formatPrice(order.total)}</div>
+>>>>>>> origin/dev_Danna
         </div>
       </div>
 
@@ -110,8 +122,12 @@ function renderOrders(orders) {
         <div class="customer-block">
           <span class="customer-icon">👤</span>
           <div>
+<<<<<<< HEAD
             <div class="customer-name">${user.name || 'Usuario'}</div>
             <div class="customer-email">${user.email || '—'}</div>
+=======
+            <div class="customer-name">${order.user_email || '—'}</div>
+>>>>>>> origin/dev_Danna
           </div>
         </div>
         <div class="customer-block">
@@ -128,7 +144,11 @@ function renderOrders(orders) {
             <span>${item.name || item.product_name || '—'}</span>
             <span class="product-qty">x${item.quantity}</span>
             <span class="product-subtotal">
+<<<<<<< HEAD
               $${(Number(item.unit_price || item.precio_unitario || 0) * item.quantity).toLocaleString('es-CO')}
+=======
+              ${formatPrice((Number(item.unit_price || item.precio_unitario || 0) * item.quantity))}
+>>>>>>> origin/dev_Danna
             </span>
           </div>
         `).join('')}
@@ -159,6 +179,7 @@ function filterOrdersByEmail() {
 
 // ── Event listeners ───────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+<<<<<<< HEAD
   // Botones de acción
   document.getElementById('btn-orders-search')?.addEventListener('click', filterOrdersByEmail);
   document.getElementById('orders-search-input')?.addEventListener('keydown', (e) => {
@@ -177,4 +198,35 @@ document.addEventListener('DOMContentLoaded', () => {
       loadAllOrders();
     }
   }
+=======
+  document.getElementById('orders-close-btn')
+    ?.addEventListener('click', closeOrdersPanel);
+
+  document.getElementById('orders-overlay')
+    ?.addEventListener('click', (e) => {
+      if (e.target.id === 'orders-overlay') closeOrdersPanel();
+    });
+
+  document.getElementById('btn-orders-search')
+    ?.addEventListener('click', filterOrdersByEmail);
+
+  document.getElementById('orders-search-input')
+    ?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') filterOrdersByEmail();
+    });
+
+  document.getElementById('btn-orders-all')
+    ?.addEventListener('click', () => {
+      document.getElementById('orders-search-input').value = '';
+      renderStats(_allOrders);
+      renderOrders(_allOrders);
+    });
+
+  // Botón "Pedidos" del header admin
+  document.querySelector('a[href="admin-orders.html"]')
+    ?.addEventListener('click', (e) => {
+      e.preventDefault();
+      openOrdersPanel();
+    });
+>>>>>>> origin/dev_Danna
 });
