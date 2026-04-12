@@ -35,19 +35,38 @@
         <div class="admin-error-msg" id="admin-form-error"></div>
 
         <div class="admin-fields">
+
+          <div class="admin-field">
+            <label for="admin-title">Título *</label>
+            <input type="text" id="admin-title" placeholder="Ej. Teclado Mecánico">
+          </div>
+
           <div class="admin-row">
-            <div class="admin-field">
-              <label for="admin-title">Título *</label>
-              <input type="text" id="admin-title" placeholder="Ej. Teclado Mecánico">
-            </div>
             <div class="admin-field">
               <label for="admin-category">Categoría *</label>
               <select id="admin-category">
                 <option value="">Seleccionar...</option>
-                <option value="1">Computadores</option>
-                <option value="2">Celulares</option>
-                <option value="3">Accesorios</option>
-                <option value="4">Videojuegos</option>
+                <option value="1">Tecnología</option>
+                <option value="2">Calzado</option>
+                <option value="3">Ropa</option>
+                <option value="4">Deportes</option>
+                <option value="5">Hogar</option>
+                <option value="6">Accesorios</option>
+                <option value="7">Libros</option>
+              </select>
+            </div>
+            <div class="admin-field">
+              <label for="admin-brand">Marca *</label>
+              <select id="admin-brand">
+                <option value="">Seleccionar...</option>
+                <option value="1">Sony</option>
+                <option value="2">Nike</option>
+                <option value="3">Samsung</option>
+                <option value="4">Apple</option>
+                <option value="5">Adidas</option>
+                <option value="6">Logitech</option>
+                <option value="7">Xiaomi</option>
+                <option value="8">LG</option>
               </select>
             </div>
           </div>
@@ -72,6 +91,7 @@
             <label for="admin-image">URL de imagen</label>
             <input type="url" id="admin-image">
           </div>
+
         </div>
 
         <button class="btn-admin-create" id="btn-admin-create">Crear Producto</button>
@@ -89,9 +109,7 @@
     </div>
   </main>
 
-  <script src="js/utils.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/admin.js"></script>
-</body>
-</html>
+ <script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/admin.js"></script>
