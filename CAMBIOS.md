@@ -330,4 +330,24 @@ Había tres problemas combinados:
 
 ---
 
+---
+
+## Correcciones adicionales (octava ronda)
+
+### 23. Conflicto de merge sin resolver en `admin.css`
+
+**Qué estaba mal:** El archivo `frontend/css/admin.css` tenía marcadores de
+conflicto de Git (`<<<<<<< HEAD`, `=======`, `>>>>>>> origin/dev_Danna`) sin
+resolver. Esto hacía que el CSS fuera inválido y el botón de imagen en el
+panel de administrador no tuviera ningún estilo aplicado.
+
+**Qué se hizo:** Se conservó la versión de `dev_Danna` que agrega los estilos
+del botón `.btn-item-img` (botón azul para actualizar la imagen de un
+producto), ya que `admin.js` lo usa y sin el estilo el botón aparecía sin
+formato. Se eliminaron los marcadores de conflicto.
+
+**Archivo:** `frontend/css/admin.css`
+
+---
+
 *Última actualización: 12 de abril de 2026*
