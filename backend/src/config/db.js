@@ -4,7 +4,8 @@ const pool = new Pool({
   connectionString: process.env.DB_URL,
 });
 
-pool.on('connect', () => {
+pool.on('connect', (client) => {
+  client.query("SET search_path TO ecommerce, public");
   console.log('[OK] Conectado a PostgreSQL');
 });
 

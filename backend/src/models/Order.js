@@ -11,17 +11,18 @@ const create = async (userId, items, total) => {
   try {
     await client.query('BEGIN');
 
+    // Suponemos id_direccion, id_metodo_pago, id_tipo_envio fijos por ahora o pasados por req
     const orderResult = await client.query(
-      `INSERT INTO orders (user_id, total, status)
-       VALUES ($1, $2, 'pending')
-       RETURNING *`,
+      `INSERT INTO ecommerce.orden (id_usuario, id_direccion, id_metodo_pago, id_tipo_envio, id_estado, total)
+       VALUES ($1, 1, 1, 1, (SELECT id_estado FROM ecommerce.estado_orden WHERE nombre ILIKE 'PENDIENTE' LIMIT 1), $2)
+       RETURNING id_orden AS id, total, id_estado, fecha_orden AS created_at`,
       [userId, total]
     );
     const order = orderResult.rows[0];
 
     for (const item of items) {
       await client.query(
-        `INSERT INTO order_items (order_id, product_id, quantity, unit_price)
+        `INSERT INTO ecommerce.orden_item (id_orden, id_producto, cantidad, precio_unitario)
          VALUES ($1, $2, $3, $4)`,
         [order.id, item.product_id, item.quantity, item.unit_price]
       );
@@ -43,17 +44,18 @@ const create = async (userId, items, total) => {
  */
 const findByUser = async (userId) => {
   const { rows } = await db.query(
-    `SELECT o.id, o.status, o.total, o.created_at,
+    `SELECT o.id_orden AS id, s.nombre AS status, o.total, o.fecha_orden AS created_at,
             json_agg(json_build_object(
-              'product_id', oi.product_id,
-              'quantity', oi.quantity,
-              'unit_price', oi.unit_price
+              'product_id', oi.id_producto,
+              'quantity', oi.cantidad,
+              'unit_price', oi.precio_unitario
             )) AS items
-     FROM orders o
-     JOIN order_items oi ON oi.order_id = o.id
-     WHERE o.user_id = $1
-     GROUP BY o.id
-     ORDER BY o.created_at DESC`,
+     FROM ecommerce.orden o
+     JOIN ecommerce.orden_item oi ON oi.id_orden = o.id_orden
+     JOIN ecommerce.estado_orden s ON s.id_estado = o.id_estado
+     WHERE o.id_usuario = $1
+     GROUP BY o.id_orden, s.nombre
+     ORDER BY o.fecha_orden DESC`,
     [userId]
   );
   return rows;
@@ -64,7 +66,13 @@ const findByUser = async (userId) => {
  * @param {number} id
  */
 const findById = async (id) => {
-  const { rows } = await db.query('SELECT * FROM orders WHERE id = $1', [id]);
+  const { rows } = await db.query(
+    `SELECT o.id_orden AS id, s.nombre AS status, o.total, o.fecha_orden AS created_at
+     FROM ecommerce.orden o
+     JOIN ecommerce.estado_orden s ON s.id_estado = o.id_estado
+     WHERE o.id_orden = $1`, 
+    [id]
+  );
   return rows[0] || null;
 };
 
@@ -75,7 +83,10 @@ const findById = async (id) => {
  */
 const updateStatus = async (id, status) => {
   const { rows } = await db.query(
-    'UPDATE orders SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
+    `UPDATE ecommerce.orden 
+     SET id_estado = (SELECT id_estado FROM ecommerce.estado_orden WHERE nombre ILIKE $1 LIMIT 1)
+     WHERE id_orden = $2 
+     RETURNING id_orden AS id, total`,
     [status, id]
   );
   return rows[0] || null;

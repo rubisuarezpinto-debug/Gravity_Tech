@@ -17,30 +17,15 @@ const registerSchema = [
     .withMessage('Email must be a valid email address'),
 
   body('password')
-    .isLength({ min: 8 })
-    .withMessage('Password must be at least 8 characters long')
-    .matches(/[A-Z]/)
-    .withMessage('Password must contain at least one uppercase letter')
-    .matches(/[a-z]/)
-    .withMessage('Password must contain at least one lowercase letter')
-    .matches(/[0-9]/)
-    .withMessage('Password must contain at least one number')
-    .matches(/[!@#$%^&*(),.?":{}|<>]/)
-    .withMessage('Password must contain at least one special character'),
+    .isLength({ min: 6 })
+    .withMessage('Password must be at least 6 characters long'),
 
-  body('first_name')
+  body('name')
     .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('First name must be between 2 and 50 characters')
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Name must be between 2 and 100 characters')
     .matches(/^[a-zA-ZáéíóúñÁÉÍÓÚÑ\s-]+$/)
-    .withMessage('First name can only contain letters, spaces, and hyphens'),
-
-  body('last_name')
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('Last name must be between 2 and 50 characters')
-    .matches(/^[a-zA-ZáéíóúñÁÉÍÓÚÑ\s-]+$/)
-    .withMessage('Last name can only contain letters, spaces, and hyphens'),
+    .withMessage('Name can only contain letters, spaces, and hyphens'),
 ];
 
 const loginSchema = [

@@ -10,19 +10,19 @@ const { sanitizeUser, createSafeResponse } = require('../utils/sanitizer');
 const register = async (req, res, next) => {
   try {
     // req.body is already validated by validateRequest middleware
-    const { email, password, first_name, last_name } = req.body;
+    const { email, password, name } = req.body;
 
     // Check if email already exists
     const existing = await User.findByEmail(email);
     if (existing) {
       return res.status(409).json({
         success: false,
-        error: 'Email is already registered',
+        error: 'Este correo ya está registrado',
       });
     }
 
     // Create new user
-    const user = await User.create(first_name, last_name, email, password);
+    const user = await User.create(name, email, password);
 
     // Generate JWT token
     const token = sign({ id: user.id, role: user.role });
@@ -58,7 +58,7 @@ const login = async (req, res, next) => {
       // Use generic message to prevent email enumeration attacks
       return res.status(401).json({
         success: false,
-        error: 'Invalid email or password',
+        error: 'Correo o contraseña incorrectos',
       });
     }
 
@@ -68,7 +68,7 @@ const login = async (req, res, next) => {
       // Use same generic message for both cases
       return res.status(401).json({
         success: false,
-        error: 'Invalid email or password',
+        error: 'Correo o contraseña incorrectos',
       });
     }
 
@@ -103,7 +103,7 @@ const me = async (req, res, next) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        error: 'User not found',
+        error: 'Usuario no encontrado',
       });
     }
 

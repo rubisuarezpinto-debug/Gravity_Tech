@@ -10,13 +10,13 @@ const securityConfig = require('../config/security');
 
 // Map of safe error messages for production
 const safeErrorMessages = {
-  400: 'Bad request',
-  401: 'Unauthorized',
-  403: 'Forbidden',
-  404: 'Not found',
-  409: 'Conflict',
-  422: 'Unprocessable entity',
-  500: 'Internal server error',
+  400: 'Solicitud inválida',
+  401: 'No autorizado. Por favor inicia sesión',
+  403: 'No tienes permiso para realizar esta acción',
+  404: 'El recurso solicitado no existe',
+  409: 'Ya existe un registro con esos datos',
+  422: 'Los datos enviados no son válidos',
+  500: 'Ocurrió un error en el servidor. Intenta nuevamente',
 };
 
 // eslint-disable-next-line no-unused-vars
@@ -43,7 +43,7 @@ const errorHandler = (err, req, res, _next) => {
 
   // In production, use safe generic messages for server errors
   if (securityConfig.isProduction && statusCode >= 500) {
-    clientMessage = safeErrorMessages[statusCode] || 'An unexpected error occurred';
+    clientMessage = safeErrorMessages[statusCode] || 'Ocurrió un error inesperado. Intenta nuevamente';
   }
 
   // Ensure we never leak sensitive data
