@@ -450,4 +450,21 @@ real del proyecto.
 para conservar el historial sin que interfiera con el desarrollo activo.
 
 **Archivo:** `backend/database/schema/` → `backend/database/_deprecated/schema/`
+
+---
+
+---
+
+### 30. El checkout fallaba por nombre de estado incorrecto
+
+**Qué estaba mal:** El controlador llamaba a `Order.updateStatus(order.id, 'paid')`
+pero en la tabla `ecommerce.estado_orden` el estado se llama `'Pago Confirmado'`,
+no `'paid'`. Esto causaba que `id_estado` quedara nulo y la orden fallara.
+
+**Qué se hizo:** Se cambió `'paid'` por `'Pago Confirmado'` en el controlador
+de checkout.
+
+**Archivo:** `backend/src/controllers/orders.controller.js`
+
+
 *Última actualización: 12 de abril de 2026*
