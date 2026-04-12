@@ -58,7 +58,7 @@ module.exports = {
 
   // ─── CORS Configuration ──────────────────────────────────────────────────
   cors: {
-    origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'],
+    origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:5000', 'http://localhost:3000'],
     credentials: true, // Allow cookies to be sent with requests
     optionsSuccessStatus: 200,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -74,7 +74,7 @@ module.exports = {
         scriptSrc: ["'self'"],
         imgSrc: ["'self'", 'data:', 'https:'],
         fontSrc: ["'self'"],
-        connectSrc: ["'self'"],
+        connectSrc: ["'self'", 'http://localhost:3000'],
         frameSrc: ["'none'"],
         objectSrc: ["'none'"],
       },

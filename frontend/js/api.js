@@ -37,3 +37,123 @@
  *      V  <-- (Queries SQL usando el módulo pg y la conexión de config/db.js)
  *   Base de Datos PostgreSQL (Ejecutándose en local o Docker)
  */
+/**
+ * =========================================================
+ * api.js — Capa de comunicación con el backend
+ * =========================================================
+ * Base URL: http://localhost:3000/api
+ * Auth: JWT almacenado en localStorage bajo la clave 'token'
+ */
+
+/**
+ * =========================================================
+ * api.js — Capa de comunicación con el backend
+ * =========================================================
+ * Depende de auth.js para manejo de token y sesión.
+ * auth.js debe cargarse ANTES que este archivo.
+ */
+
+const BASE_URL = 'http://localhost:3000/api';
+
+// ── Helper: headers con JWT ───────────────────────────────
+function authHeaders() {
+  const token = auth.getToken();
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  return headers;
+}
+
+// ── Helper: fetch centralizado ────────────────────────────
+async function request(method, path, body = null) {
+  const options = { method, headers: authHeaders() };
+  if (body) options.body = JSON.stringify(body);
+
+  const res = await fetch(`${BASE_URL}${path}`, options);
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `Error ${res.status}`);
+  }
+
+  return res.json();
+}
+
+// ════════════════════════════════════════
+// AUTH
+// ════════════════════════════════════════
+const api = {
+  /** POST /api/auth/register → guarda sesión automáticamente */
+  register: async (data) => {
+    const result = await request('POST', '/auth/register', data);
+    if (result.token) auth.setSession(result.token, result.user);
+    return result;
+  },
+
+  /** POST /api/auth/login → guarda sesión automáticamente */
+  login: async (data) => {
+    const result = await request('POST', '/auth/login', data);
+    if (result.token) auth.setSession(result.token, result.user);
+    return result;
+  },
+
+  /** GET /api/auth/me */
+  me: () => request('GET', '/auth/me'),
+
+  // ════════════════════════════════════════
+  // PRODUCTOS
+  // ════════════════════════════════════════
+
+  /** GET /api/products */
+  getProducts: () => request('GET', '/products'),
+
+  /** GET /api/products/:id */
+  getProduct: (id) => request('GET', `/products/${id}`),
+
+  // ════════════════════════════════════════
+  // CARRITO
+  // ════════════════════════════════════════
+
+  /** GET /api/cart */
+  getCart: () => request('GET', '/cart'),
+
+  /** POST /api/cart — body: { product_id, quantity } */
+  addToCart: (product_id, quantity = 1) =>
+    request('POST', '/cart', { product_id, quantity }),
+
+  /** PUT /api/cart/:itemId — body: { quantity } */
+  updateCartItem: (itemId, { quantity }) =>
+    request('PUT', `/cart/${itemId}`, { quantity }),
+
+  /** DELETE /api/cart/:itemId */
+  removeCartItem: (itemId) => request('DELETE', `/cart/${itemId}`),
+
+  /** DELETE /api/cart */
+  clearCart: () => request('DELETE', '/cart'),
+
+  // ════════════════════════════════════════
+  // ÓRDENES
+  // ════════════════════════════════════════
+
+  /** POST /api/orders/checkout — body: { payment_method } */
+  createOrder: ({ payment_method }) =>
+    request('POST', '/orders/checkout', { payment_method }),
+
+  /** GET /api/orders */
+  getMyOrders: () => request('GET', '/orders'),
+
+  /** GET /api/orders/:id */
+  getOrder: (id) => request('GET', `/orders/${id}`),
+  
+  // ════════════════════════════════════════
+  // ADMIN — Órdenes
+  // ════════════════════════════════════════
+ 
+  /** GET /api/admin/orders */
+  getAllOrders: () => request('GET', '/admin/orders'),
+ 
+  /** PATCH /api/admin/orders/:id/status */
+  updateOrderStatus: (id, status) =>
+    request('PATCH', `/admin/orders/${id}/status`, { status }),
+};
+
+window.api = api;

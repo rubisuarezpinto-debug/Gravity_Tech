@@ -1,0 +1,109 @@
+<!--
+  =========================================================
+  index.html — Home / Catálogo de productos
+  =========================================================
+
+  DESCRIPCIÓN:
+    Página principal de TechStore. Muestra la lista de productos
+    disponibles con imagen, nombre, precio y botón "Agregar al carrito".
+
+  SECCIONES SUGERIDAS:
+    - <header>: navbar con logo, buscador y contador de carrito
+    - <main>: grid de tarjetas de productos
+    - <footer>: información de contacto
+
+  CONEXIÓN CON EL BACKEND:
+    1. Cargar productos al inicio:
+         const { products } = await api.getProducts();
+         → GET http://localhost:3000/api/products
+
+    2. Agregar al carrito (requiere login):
+         await api.addToCart({ product_id, quantity });
+         → POST http://localhost:3000/api/cart
+         → Header requerido: Authorization: Bearer <JWT>
+
+    3. Verificar sesión activa:
+         auth.requireAuth();   // redirige a login.html si no hay token
+
+  SCRIPTS A INCLUIR (en este orden):
+    <script src="../js/utils.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/cart.js"></script>
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gravity Tech 💻</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/cart.css">
+  <link rel="stylesheet" href="css/checkout.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/orders.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <span class="logo-title">Gravity Tech 💻</span>
+      <span class="logo-subtitle">Lo mejor en tecnología</span>
+    </div>
+    <!-- Acciones usuario normal / no logueado -->
+    <div class="actions" id="header-user">
+      <a href="#" class="btn-login" id="btn-login-header">🔐 Iniciar sesión</a>
+      <a href="#" class="btn-cart">🛒 Carrito (<span id="cart-count">0</span>)</a>
+    </div>
+ 
+    <!-- Acciones admin (oculto por defecto, se muestra si rol = admin) -->
+    <div class="actions" id="header-admin" style="display:none">
+      <span class="btn-admin-name" id="btn-admin-name">👤 admin</span>
+      <a href="admin-products.html" class="btn-admin">⚙ Editar</a>
+      <a href="admin-orders.html" class="btn-admin">📦 Pedidos</a>
+      <button class="btn-logout" id="btn-logout-admin">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <!-- Barra de búsqueda y filtros -->
+  <section class="search-section">
+    <input type="text" id="search-input" class="search-input" placeholder="Buscar artículo...">
+    <button id="search-btn" class="btn-search">🔎 Buscar</button>
+    <button id="show-all-btn" class="btn-show-all">🔄 Mostrar todo</button>
+    <span class="filter-label">Categoría:</span>
+    <select id="filter-category">
+      <option value="">Todas</option>
+      <option value="Computadores">Computadores</option>
+      <option value="Celulares">Celulares</option>
+      <option value="Accesorios">Accesorios</option>
+      <option value="Videojuegos">Videojuegos</option>
+    </select>
+    <span class="filter-label">Precio:</span>
+    <select id="filter-price">
+      <option value="">Rango</option>
+      <option value="low">Menor a $1.000.000</option>
+      <option value="mid">$1.000.000 - $3.000.000</option>
+      <option value="high">Mayor a $3.000.000</option>
+    </select>
+  </section>
+
+  <!-- Grid de productos -->
+  <main class="products" id="products-container"></main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2026 Gravity Tech. Todos los derechos reservados.</p>
+    <p>Contacto: soporte@gravitytech.com | Tel: +57 300 123 4567</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/index.js"></script>
+</body>
+</html>
