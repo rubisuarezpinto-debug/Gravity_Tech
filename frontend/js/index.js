@@ -16,11 +16,17 @@ async function loadProducts(filters = {}) {
 
     let filtered = products;
 
-    if (filters.search) {
-      const q = filters.search.toLowerCase();
+    if (filters.search && filters.search.trim()) {
+      const q = filters.search.trim().toLowerCase();
       filtered = filtered.filter(p =>
         p.name.toLowerCase().includes(q) ||
         p.description?.toLowerCase().includes(q)
+      );
+    }
+
+    if (filters.category) {
+      filtered = filtered.filter(p =>
+        (p.category || '').toLowerCase() === filters.category.toLowerCase()
       );
     }
 
@@ -44,20 +50,24 @@ async function loadProducts(filters = {}) {
         ? `<a href="admin-products.html" class="btn-admin-card" style="text-decoration:none; display:inline-block; margin-top:10px; background:var(--accent-blue); color:white; padding:8px 15px; border-radius:5px">⚙ Administrar</a>`
         : `<button class='btn-add-cart' onclick='addToCart(${product.id})'>🛒 Agregar al carrito</button>`;
       
+      const stockClass = product.stock < 5 ? 'stock-low' : product.stock < 20 ? 'stock-mid' : '';
+
       card.innerHTML = `
-        <div class="product-img-wrapper">
-          <img
-            src="${product.image_url}"
-            alt="${product.name}"
-            onerror="this.src='https://placehold.co/300x225/3a3a3a/00c8e0?text=Sin+imagen'"
-          >
-        </div>
-        <h2>${product.name}</h2>
-        <p>${product.description || ''}</p>
+        <a href="product?id=${product.id}" class="product-link">
+          <div class="product-img-wrapper">
+            <img
+              src="${product.image_url}"
+              alt="${product.name}"
+              onerror="this.src='https://placehold.co/300x225/3a3a3a/00c8e0?text=Sin+imagen'"
+            >
+          </div>
+          <h2>${product.name}</h2>
+          <p>${product.description || ''}</p>
+        </a>
         <div class="product-meta">
-          <span class="badge-stock">${product.stock} disponibles</span>
+          <span class="badge-stock ${stockClass}">${product.stock} disponibles</span>
         </div>
-        <span class="price">$${formatPrice(product.price)}</span>
+        <span class="price">${formatPrice(product.price)}</span>
         ${actionBtn}
       `;
       container.appendChild(card);
@@ -74,11 +84,15 @@ document.addEventListener('DOMContentLoaded', () => {
   loadProducts();
 
   // Listeners para búsqueda y filtros
-  document.getElementById('search-btn')?.addEventListener('click', () => {
-    loadProducts({
-      search: document.getElementById('search-input').value,
-      price: document.getElementById('filter-price').value,
-    });
+  const runSearch = () => loadProducts({
+    search:   document.getElementById('search-input').value,
+    price:    document.getElementById('filter-price').value,
+    category: document.getElementById('filter-category').value,
+  });
+
+  document.getElementById('search-btn')?.addEventListener('click', runSearch);
+  document.getElementById('search-input')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') runSearch();
   });
 
   document.getElementById('show-all-btn')?.addEventListener('click', () => {
@@ -95,8 +109,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('filter-price')?.addEventListener('change', () => {
     loadProducts({
-      search: document.getElementById('search-input')?.value || '',
-      price: document.getElementById('filter-price').value,
+      search:   document.getElementById('search-input')?.value || '',
+      price:    document.getElementById('filter-price').value,
+      category: document.getElementById('filter-category')?.value || '',
+    });
+  });
+
+  document.getElementById('filter-category')?.addEventListener('change', () => {
+    loadProducts({
+      search:   document.getElementById('search-input')?.value || '',
+      price:    document.getElementById('filter-price')?.value || '',
+      category: document.getElementById('filter-category').value,
     });
   });
 });

@@ -5,10 +5,10 @@
  * Solo accesible para administradores.
  * Endpoint: GET /api/admin/orders → { orders: [...] }
  *
- * Estructura esperada de cada orden:
+ * Estructura esperada de cada orden (campos planos del backend):
  * {
  *   id, total, created_at,
- *   user: { name, email },
+ *   user_name, user_email,
  *   items: [{ name, quantity, unit_price }]
  * }
  */
@@ -24,13 +24,9 @@ function openOrdersPanel() {
 }
 
 function closeOrdersPanel() {
-<<<<<<< HEAD
   const overlay = document.getElementById('orders-overlay');
   if (overlay) overlay.classList.remove('open');
   else window.location.href = 'admin-products.html';
-=======
-  document.getElementById('orders-overlay').classList.remove('open');
->>>>>>> origin/dev_Danna
 }
 
 // ── Cargar todas las órdenes ──────────────────────────────
@@ -61,12 +57,7 @@ function renderStats(orders) {
 
   document.getElementById('stat-total-orders').textContent   = totalOrders;
   document.getElementById('stat-total-products').textContent = totalProducts;
-<<<<<<< HEAD
-  document.getElementById('stat-total-sales').textContent    =
-    `$${totalSales.toLocaleString('es-CO')}`;
-=======
-  document.getElementById('stat-total-sales').textContent = formatPrice(totalSales);
->>>>>>> origin/dev_Danna
+  document.getElementById('stat-total-sales').textContent    = formatPrice(totalSales);
 }
 
 function resetStats() {
@@ -87,10 +78,9 @@ function renderOrders(orders) {
   listEl.innerHTML = '';
 
   orders.forEach(order => {
-    const items    = order.items || order.order_items || [];
-    const user     = order.user  || {};
-    const shortId  = String(order.id).slice(0, 8);
-    const date     = order.created_at
+    const items   = order.items || order.order_items || [];
+    const shortId = String(order.id).slice(0, 8);
+    const date    = order.created_at
       ? new Date(order.created_at).toLocaleString('es-CO', {
           year: 'numeric', month: 'long', day: 'numeric',
           hour: '2-digit', minute: '2-digit'
@@ -109,11 +99,7 @@ function renderOrders(orders) {
         </div>
         <div>
           <div class="order-total-label">Total</div>
-<<<<<<< HEAD
-          <div class="order-total">$${Number(order.total).toLocaleString('es-CO')}</div>
-=======
           <div class="order-total">${formatPrice(order.total)}</div>
->>>>>>> origin/dev_Danna
         </div>
       </div>
 
@@ -122,12 +108,8 @@ function renderOrders(orders) {
         <div class="customer-block">
           <span class="customer-icon">👤</span>
           <div>
-<<<<<<< HEAD
-            <div class="customer-name">${user.name || 'Usuario'}</div>
-            <div class="customer-email">${user.email || '—'}</div>
-=======
-            <div class="customer-name">${order.user_email || '—'}</div>
->>>>>>> origin/dev_Danna
+            <div class="customer-name">${order.user_name || 'Usuario'}</div>
+            <div class="customer-email">${order.user_email || '—'}</div>
           </div>
         </div>
         <div class="customer-block">
@@ -144,11 +126,7 @@ function renderOrders(orders) {
             <span>${item.name || item.product_name || '—'}</span>
             <span class="product-qty">x${item.quantity}</span>
             <span class="product-subtotal">
-<<<<<<< HEAD
-              $${(Number(item.unit_price || item.precio_unitario || 0) * item.quantity).toLocaleString('es-CO')}
-=======
               ${formatPrice((Number(item.unit_price || item.precio_unitario || 0) * item.quantity))}
->>>>>>> origin/dev_Danna
             </span>
           </div>
         `).join('')}
@@ -169,7 +147,7 @@ function filterOrdersByEmail() {
   }
 
   const filtered = _allOrders.filter(o => {
-    const email = (o.user?.email || '').toLowerCase();
+    const email = (o.user_email || '').toLowerCase();
     return email.includes(query);
   });
 
@@ -179,26 +157,6 @@ function filterOrdersByEmail() {
 
 // ── Event listeners ───────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-<<<<<<< HEAD
-  // Botones de acción
-  document.getElementById('btn-orders-search')?.addEventListener('click', filterOrdersByEmail);
-  document.getElementById('orders-search-input')?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') filterOrdersByEmail();
-  });
-  document.getElementById('btn-orders-all')?.addEventListener('click', () => {
-    document.getElementById('orders-search-input').value = '';
-    renderStats(_allOrders);
-    renderOrders(_allOrders);
-  });
-  document.getElementById('orders-close-btn')?.addEventListener('click', closeOrdersPanel);
-
-  // Iniciar automáticamente si estamos en la página (no en modal)
-  if (document.getElementById('orders-list') && !document.getElementById('orders-overlay')) {
-    if (auth.requireAdmin()) {
-      loadAllOrders();
-    }
-  }
-=======
   document.getElementById('orders-close-btn')
     ?.addEventListener('click', closeOrdersPanel);
 
@@ -222,11 +180,10 @@ document.addEventListener('DOMContentLoaded', () => {
       renderOrders(_allOrders);
     });
 
-  // Botón "Pedidos" del header admin
-  document.querySelector('a[href="admin-orders.html"]')
-    ?.addEventListener('click', (e) => {
-      e.preventDefault();
-      openOrdersPanel();
-    });
->>>>>>> origin/dev_Danna
+  // Iniciar automáticamente si estamos en la página dedicada (no en modal)
+  if (document.getElementById('orders-list') && !document.getElementById('orders-overlay')) {
+    if (auth.requireAdmin()) {
+      loadAllOrders();
+    }
+  }
 });
