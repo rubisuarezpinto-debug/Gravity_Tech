@@ -61,7 +61,9 @@ CREATE TABLE IF NOT EXISTS ecommerce.usuario (
     email VARCHAR(150) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     rol VARCHAR(20) DEFAULT 'cliente',
-    estado VARCHAR(20) DEFAULT 'ACTIVO'
+    estado VARCHAR(20) DEFAULT 'ACTIVO',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Table: direccion
@@ -70,7 +72,8 @@ CREATE TABLE IF NOT EXISTS ecommerce.direccion (
     id_usuario INTEGER NOT NULL,
     direccion VARCHAR(255) NOT NULL,
     ciudad VARCHAR(100) NOT NULL,
-    pais VARCHAR(100) NOT NULL
+    pais VARCHAR(100) NOT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Table: usuario_metodo_pago
@@ -78,6 +81,7 @@ CREATE TABLE IF NOT EXISTS ecommerce.usuario_metodo_pago (
     id_usuario INTEGER NOT NULL,
     id_metodo_pago INTEGER NOT NULL,
     estado VARCHAR(20) DEFAULT 'ACTIVO',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id_usuario, id_metodo_pago)
 );
 
@@ -94,7 +98,9 @@ CREATE TABLE IF NOT EXISTS ecommerce.producto (
     stock INTEGER DEFAULT 0,
     sku VARCHAR(50) UNIQUE,
     id_marca INTEGER NOT NULL,
-    estado VARCHAR(20) DEFAULT 'DISPONIBLE'
+    estado VARCHAR(20) DEFAULT 'DISPONIBLE',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Table: producto_categoria
@@ -108,7 +114,8 @@ CREATE TABLE IF NOT EXISTS ecommerce.producto_categoria (
 CREATE TABLE IF NOT EXISTS ecommerce.imagen (
     id_imagen SERIAL PRIMARY KEY,
     id_producto INTEGER NOT NULL,
-    url VARCHAR(500) NOT NULL
+    url VARCHAR(500) NOT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Table: resena
@@ -117,7 +124,8 @@ CREATE TABLE IF NOT EXISTS ecommerce.resena (
     id_usuario INTEGER NOT NULL,
     id_producto INTEGER NOT NULL,
     comentario TEXT,
-    puntuacion INTEGER CHECK (puntuacion >= 1 AND puntuacion <= 5)
+    puntuacion INTEGER CHECK (puntuacion >= 1 AND puntuacion <= 5),
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ##################################################
@@ -128,7 +136,9 @@ CREATE TABLE IF NOT EXISTS ecommerce.resena (
 CREATE TABLE IF NOT EXISTS ecommerce.carrito (
     id_carrito SERIAL PRIMARY KEY,
     id_usuario INTEGER NOT NULL,
-    estado VARCHAR(20) DEFAULT 'ABIERTO'
+    estado VARCHAR(20) DEFAULT 'ABIERTO',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Table: carrito_item
@@ -137,7 +147,8 @@ CREATE TABLE IF NOT EXISTS ecommerce.carrito_item (
     id_carrito INTEGER NOT NULL,
     id_producto INTEGER NOT NULL,
     cantidad INTEGER NOT NULL DEFAULT 1,
-    precio_unitario DECIMAL(10, 2) NOT NULL
+    precio_unitario DECIMAL(10, 2) NOT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ##################################################

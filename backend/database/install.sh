@@ -65,6 +65,13 @@ run_as_admin() {
 # ── [1/4] Crear usuario y base de datos ─────────────────────
 echo "▶  [1/4] Creando usuario '$DB_USER' y base de datos '$DB_NAME'..."
 
+# Auto-detección de locale según el sistema operativo
+# En Linux/Docker suele ser es_CO.UTF-8, en Windows suele ser Spanish_Colombia.1252
+LOCALE="es_CO.UTF-8"
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+  LOCALE="Spanish_Colombia.1252"
+fi
+
 run_as_postgres <<SQL
 DO \$\$
 BEGIN
@@ -82,8 +89,8 @@ DROP DATABASE IF EXISTS $DB_NAME;
 
 CREATE DATABASE $DB_NAME
   WITH ENCODING  = 'UTF8'
-       LC_COLLATE = 'es_CO.UTF-8'
-       LC_CTYPE   = 'es_CO.UTF-8'
+       LC_COLLATE = '$LOCALE'
+       LC_CTYPE   = '$LOCALE'
        TEMPLATE   = template0
        OWNER      = $DB_USER;
 
