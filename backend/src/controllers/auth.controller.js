@@ -25,7 +25,7 @@ const register = async (req, res, next) => {
     const user = await User.create(name, email, password);
 
     // Generate JWT token
-    const token = sign({ id: user.id, role: user.role });
+    const token = sign({ id: user.id, rol: user.rol });
 
     // Sanitize user object before sending
     const safeUser = sanitizeUser(user);
@@ -73,7 +73,7 @@ const login = async (req, res, next) => {
     }
 
     // Generate JWT token
-    const token = sign({ id: user.id, role: user.role });
+    const token = sign({ id: user.id, rol: user.rol });
 
     // Sanitize user object before sending
     const safeUser = sanitizeUser(user);

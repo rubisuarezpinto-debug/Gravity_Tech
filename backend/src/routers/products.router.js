@@ -8,9 +8,9 @@ router.get('/', getAll);
 router.get('/:id', getOne);
 
 // Protegidas — solo admin
-router.post('/', authenticate, authorize('admin'), create);
-router.put('/:id', authenticate, authorize('admin'), update);
-router.put('/:id/image', authenticate, authorize('admin'), updateImage);
-router.delete('/:id', authenticate, authorize('admin'), remove);
+router.post('/', authenticate, authorize('administrador'), create);
+router.put('/:id', authenticate, authorize('administrador'), update);
+router.put('/:id/image', authenticate, authorize('administrador'), updateImage);
+router.delete('/:id', authenticate, authorize('administrador'), remove);
 
 module.exports = router;
