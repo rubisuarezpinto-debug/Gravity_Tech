@@ -53,7 +53,7 @@ async function loadProducts(filters = {}) {
       const stockClass = product.stock < 5 ? 'stock-low' : product.stock < 20 ? 'stock-mid' : '';
 
       card.innerHTML = `
-        <a href="product?id=${product.id}" class="product-link">
+        <a href="product.html?id=${product.id}" class="product-link">
           <div class="product-img-wrapper">
             <img
               src="${product.image_url}"
