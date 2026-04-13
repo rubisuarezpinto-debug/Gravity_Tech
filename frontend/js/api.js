@@ -53,7 +53,7 @@
  * auth.js debe cargarse ANTES que este archivo.
  */
 
-const BASE_URL = 'http://localhost:3000/api';
+const BASE_URL = (window.CONFIG && window.CONFIG.API_URL) || 'http://localhost:3000/api';
 
 // ── Helper: headers con JWT ───────────────────────────────
 function authHeaders() {

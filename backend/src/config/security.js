@@ -74,7 +74,11 @@ module.exports = {
         scriptSrc: ["'self'"],
         imgSrc: ["'self'", 'data:', 'https:'],
         fontSrc: ["'self'"],
-        connectSrc: ["'self'", 'http://localhost:3000'],
+        connectSrc: [
+          "'self'",
+          'http://localhost:3000',
+          ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+        ],
         frameSrc: ["'none'"],
         objectSrc: ["'none'"],
       },
