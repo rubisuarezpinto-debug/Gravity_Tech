@@ -31,7 +31,8 @@ function clearAdminForm() {
   document.getElementById('admin-description').value = '';
   document.getElementById('admin-stock').value       = '';
   document.getElementById('admin-price').value       = '';
-  document.getElementById('admin-image')?.value      = '';
+  const imgInput = document.getElementById('admin-image');
+  if (imgInput) imgInput.value = '';
 
   ['admin-title', 'admin-category', 'admin-brand', 'admin-stock', 'admin-price'].forEach(id => {
     const el = document.getElementById(id);
