@@ -467,4 +467,65 @@ de checkout.
 **Archivo:** `backend/src/controllers/orders.controller.js`
 
 
-*Última actualización: 12 de abril de 2026*
+---
+
+## Despliegue en producción (Neon + Render + Vercel)
+
+### 31. Configuración de entorno para despliegue en tres servicios
+
+**Qué se hizo:** Se preparó la infraestructura completa para desplegar la aplicación en producción:
+
+- **Neon (base de datos):** Se creó `backend/database/neon-setup.sql`, un script unificado que combina los 4 archivos DDL originales y elimina referencias al usuario local `ecommerce_admin`. Compatible con el usuario predeterminado de Neon. Incluye schema, tablas, foreign keys y la migración del constraint UNIQUE en `carrito_item`.
+- **Render (backend):** Se conectó el repositorio GitHub. Variables de entorno configuradas: `DB_URL`, `JWT_SECRET`, `NODE_ENV`, `CORS_ORIGIN`, `FRONTEND_URL`. Root Directory: `backend`, Start Command: `npm start`.
+- **Vercel (frontend):** Se conectó el repositorio GitHub. Root Directory: `frontend`, Framework: Other, sin build command.
+
+**Archivos nuevos:** `backend/database/neon-setup.sql`, `frontend/js/config.js`, `backend/.env.example` (actualizado)
+
+---
+
+### 32. URL del backend hardcodeada — reemplazada por detección automática de entorno
+
+**Qué estaba mal:** `api.js` tenía `const BASE_URL = 'http://localhost:3000/api'` hardcodeado. En producción (Vercel) el frontend seguía apuntando a localhost, causando que todas las peticiones fallaran.
+
+**Qué se hizo:** Se creó `frontend/js/config.js` que detecta automáticamente el entorno según `window.location.hostname`. Si es `localhost` o `127.0.0.1` usa el backend local; si no, usa la URL de Render (`https://techstore-backend-a4e2.onrender.com/api`). Se actualizó `api.js` para usar `window.CONFIG.API_URL`. Se agregó `config.js` como primer script en los 6 HTML que tienen funcionalidad real.
+
+**Archivos:** `frontend/js/config.js` (nuevo), `frontend/js/api.js`, `frontend/index.html`, `frontend/login.html`, `frontend/register.html`, `frontend/admin-orders.html`, `frontend/admin-products.html`, `frontend/product.html`
+
+---
+
+### 33. CORS bloqueaba todas las peticiones desde Vercel
+
+**Qué estaba mal:** El backend solo permitía `localhost` en `CORS_ORIGIN`. Al desplegar el frontend en Vercel (`https://gravity-tech-git-devjhoan-warzerps-projects.vercel.app`), todas las peticiones eran bloqueadas por CORS con el error "No 'Access-Control-Allow-Origin' header is present".
+
+**Qué se hizo:** Se actualizaron las variables de entorno en Render: `CORS_ORIGIN` y `FRONTEND_URL` con la URL real de Vercel. También se corrigió `backend/src/config/security.js` para que el `connectSrc` del Helmet CSP incluya dinámicamente `process.env.FRONTEND_URL` en lugar de tener solo `http://localhost:3000`.
+
+**Archivos:** `backend/src/config/security.js`
+
+---
+
+### 34. Clic en producto daba 404 en Vercel
+
+**Qué estaba mal:** El enlace generado en las tarjetas era `href="product?id=X"` (sin extensión `.html`). Esto funcionaba en Live Server local pero en Vercel, al ser un sitio estático, la ruta `/product` no existe — solo existe `/product.html`. El resultado era un error 404 de Vercel al hacer clic en cualquier producto.
+
+**Qué se hizo:** Se cambió el enlace a `href="product.html?id=X"`.
+
+> Nota: el cambio anterior (ronda 4) había eliminado la extensión `.html` precisamente para evitar una redirección de Live Server. En Vercel ese problema no existe, así que la extensión es necesaria.
+
+**Archivo:** `frontend/js/index.js`
+
+---
+
+### 35. Datos de prueba cargados en Neon con contraseñas hasheadas correctamente
+
+**Qué estaba mal:** Los archivos seed originales (`06-INSERT-USUARIOS.sql`) tenían contraseñas en texto plano (`admin_secure_2026`, `user_hash_101`). El backend usa `bcryptjs` para comparar contraseñas, por lo que el login nunca hubiera funcionado con esos valores.
+
+**Qué se hizo:** Se generaron hashes bcrypt reales (cost factor 12) para cada usuario y se cargó el seed completo en Neon en un solo script. También se agregaron imágenes para los 11 productos que no las tenían en el seed original.
+
+**Credenciales de producción:**
+- `admin@ecommerce.com` / `Admin2026!` (rol: admin)
+- `juan.perez@gmail.com` / `User1234!` (rol: cliente)
+- Resto de usuarios de prueba: `User1234!`
+
+---
+
+*Última actualización: 13 de abril de 2026*

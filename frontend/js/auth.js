@@ -87,7 +87,7 @@ function isLoggedIn() {
  */
 function isAdmin() {
   const user = getUser();
-  return user?.role === 'admin';
+  return user?.rol === 'administrador';
 }
 
 /**
@@ -231,6 +231,10 @@ async function handleLogin() {
   try {
     const data = await api.login({ email: emailEl.value.trim(), password: passwordEl.value });
     // api.login llama a setSession internamente
+    if (isAdmin()) {
+      window.location.href = 'admin-products.html';
+      return;
+    }
     closeLogin();
     updateHeaderAuth();
     await updateCartCount();

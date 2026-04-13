@@ -17,7 +17,7 @@ const getOne = async (req, res, next) => {
   try {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ message: 'Orden no encontrada' });
-    if (order.user_id !== req.user.id && req.user.role !== 'admin') {
+    if (order.user_id !== req.user.id && req.user.rol !== 'administrador') {
       return res.status(403).json({ message: 'Acceso denegado' });
     }
     res.json({ order });

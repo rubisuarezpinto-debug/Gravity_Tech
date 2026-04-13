@@ -28,7 +28,7 @@ const authorize = (...roles) => (req, res, next) => {
     }
 
     // Check if user has required role
-    const userRole = req.user.role;
+    const userRole = req.user.rol;
 
     if (!userRole) {
       return res.status(403).json({
