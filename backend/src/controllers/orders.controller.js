@@ -2,31 +2,31 @@ const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const Payment = require('../models/Payment');
 
-/** GET /api/orders */
 const getMyOrders = async (req, res, next) => {
   try {
     const orders = await Order.findByUser(req.user.id);
-    res.json({ orders });
+    res.json(orders);
   } catch (err) {
     next(err);
   }
 };
 
-/** GET /api/orders/:id */
 const getOne = async (req, res, next) => {
   try {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ message: 'Orden no encontrada' });
-    if (order.user_id !== req.user.id && req.user.rol !== 'administrador') {
+
+    const userRole = req.user.role || req.user.rol;
+
+    if (order.user_id !== req.user.id && userRole !== 'admin') {
       return res.status(403).json({ message: 'Acceso denegado' });
     }
-    res.json({ order });
+    res.json(order);
   } catch (err) {
     next(err);
   }
 };
 
-/** POST /api/orders/checkout */
 const checkout = async (req, res, next) => {
   try {
     const { payment_method } = req.body;

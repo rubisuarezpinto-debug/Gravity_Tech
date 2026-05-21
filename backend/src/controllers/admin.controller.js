@@ -1,58 +1,39 @@
-const db = require('../config/db');
-const Order = require('../models/Order');
+const pool = require('../config/db');
 
-/** GET /api/admin/users */
-const getAllUsers = async (_req, res, next) => {
+// ── CONTROL GENERAL DE DINERO (Función de Contador para el Admin) ──
+const obtenerBalanceFinanciero = async (req, res, next) => {
   try {
-    const { rows } = await db.query(
-      'SELECT id_usuario AS id, nombre AS name, email, rol AS role FROM ecommerce.usuario ORDER BY id_usuario DESC'
+    // Consulta agrupada real de la tabla de pagos exitosos
+    const result = await pool.query(
+      `SELECT 
+        COALESCE(SUM(monto), 0.00) AS n_total_recaudado,
+        COUNT(id_pago) AS id_total_ventas,
+        COUNT(DISTINCT id_orden) AS id_ordenes_procesadas
+       FROM ecommerce.pago
+       WHERE estado = 'APROBADO' OR estado = 'PAGADO'`
     );
-    res.json({ users: rows });
-  } catch (err) {
-    next(err);
-  }
-};
 
-/** GET /api/admin/orders */
-const getAllOrders = async (_req, res, next) => {
-  try {
-    const { rows } = await db.query(
-      `SELECT o.id_orden AS id, s.nombre AS status, o.total, o.fecha_orden AS created_at,
-              u.nombre AS user_name, u.email AS user_email,
-              COALESCE(
-                json_agg(
-                  json_build_object(
-                    'name',       p.nombre,
-                    'quantity',   oi.cantidad,
-                    'unit_price', oi.precio_unitario
-                  )
-                ) FILTER (WHERE oi.id_orden_item IS NOT NULL),
-                '[]'
-              ) AS items
-       FROM ecommerce.orden o
-       JOIN ecommerce.usuario u     ON u.id_usuario = o.id_usuario
-       JOIN ecommerce.estado_orden s ON s.id_estado = o.id_estado
-       LEFT JOIN ecommerce.orden_item oi ON oi.id_orden = o.id_orden
-       LEFT JOIN ecommerce.producto p   ON p.id_producto = oi.id_producto
-       GROUP BY o.id_orden, s.nombre, u.nombre, u.email
-       ORDER BY o.fecha_orden DESC`
+    // Consulta secundaria para saber qué métodos de pago están generando más ingresos
+    const desgloseMetodos = await pool.query(
+      `SELECT mp.nombre AS v_metodo, COALESCE(SUM(p.monto), 0.00) AS n_subtotal
+       FROM ecommerce.pago p
+       INNER JOIN ecommerce.orden o ON p.id_orden = o.id_orden
+       INNER JOIN ecommerce.metodo_pago mp ON o.id_metodo_pago = mp.id_metodo_pago
+       WHERE p.estado = 'APROBADO' OR p.estado = 'PAGADO'
+       GROUP BY mp.nombre`
     );
-    res.json({ orders: rows });
+
+    res.status(200).json({
+      b_exito: true,
+      v_mensaje: 'Balance financiero contable generado con éxito.',
+      o_datos: {
+        o_resumen: result.rows[0],
+        a_desglose_metodos: desgloseMetodos.rows
+      }
+    });
   } catch (err) {
     next(err);
   }
 };
 
-/** PATCH /api/admin/orders/:id/status */
-const updateOrderStatus = async (req, res, next) => {
-  try {
-    const { status } = req.body;
-    const order = await Order.updateStatus(req.params.id, status);
-    if (!order) return res.status(404).json({ message: 'Orden no encontrada' });
-    res.json({ order });
-  } catch (err) {
-    next(err);
-  }
-};
-
-module.exports = { getAllUsers, getAllOrders, updateOrderStatus };
+module.exports = { obtenerBalanceFinanciero };

@@ -1,22 +1,15 @@
 const db = require('../config/db');
 
-/**
- * Crea una orden con sus items en una sola transacción.
- * @param {number}   userId
- * @param {Array}    items  - [{ product_id, quantity, unit_price }]
- * @param {number}   total
- */
-const create = async (userId, items, total) => {
-  const client = await db.pool.connect();
+const create = async (userId, items, total, idDireccion = 1, idMetodoPago = 1, idTipoEnvio = 1) => {
+  const client = await (db.pool ? db.pool.connect() : db.connect());
   try {
     await client.query('BEGIN');
 
-    // Suponemos id_direccion, id_metodo_pago, id_tipo_envio fijos por ahora o pasados por req
     const orderResult = await client.query(
       `INSERT INTO ecommerce.orden (id_usuario, id_direccion, id_metodo_pago, id_tipo_envio, id_estado, total)
-       VALUES ($1, 1, 1, 1, (SELECT id_estado FROM ecommerce.estado_orden WHERE nombre ILIKE 'PENDIENTE' LIMIT 1), $2)
+       VALUES ($1, $2, $3, $4, (SELECT id_estado FROM ecommerce.estado_orden WHERE nombre ILIKE 'PENDIENTE' LIMIT 1), $5)
        RETURNING id_orden AS id, total, id_estado, fecha_orden AS created_at`,
-      [userId, total]
+      [userId, idDireccion, idMetodoPago, idTipoEnvio, total]
     );
     const order = orderResult.rows[0];
 
@@ -38,10 +31,6 @@ const create = async (userId, items, total) => {
   }
 };
 
-/**
- * Devuelve todas las órdenes de un usuario.
- * @param {number} userId
- */
 const findByUser = async (userId) => {
   const { rows } = await db.query(
     `SELECT o.id_orden AS id, s.nombre AS status, o.total, o.fecha_orden AS created_at,
@@ -61,10 +50,6 @@ const findByUser = async (userId) => {
   return rows;
 };
 
-/**
- * Busca una orden por ID.
- * @param {number} id
- */
 const findById = async (id) => {
   const { rows } = await db.query(
     `SELECT o.id_orden AS id, s.nombre AS status, o.total, o.fecha_orden AS created_at
@@ -76,11 +61,6 @@ const findById = async (id) => {
   return rows[0] || null;
 };
 
-/**
- * Actualiza el estado de una orden.
- * @param {number} id
- * @param {string} status  - 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled'
- */
 const updateStatus = async (id, status) => {
   const { rows } = await db.query(
     `UPDATE ecommerce.orden 

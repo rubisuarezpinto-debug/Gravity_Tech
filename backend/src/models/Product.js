@@ -1,6 +1,5 @@
 const db = require('../config/db');
 
-/** Devuelve todos los productos disponibles con su primera categoría. */
 const findAll = async () => {
   const { rows } = await db.query(
     `SELECT p.id_producto AS id, p.nombre AS name, p.descripcion AS description,
@@ -10,6 +9,7 @@ const findAll = async () => {
      LEFT JOIN (
        SELECT DISTINCT ON (id_producto) id_producto, url
        FROM ecommerce.imagen
+       ORDER BY id_producto, es_principal DESC, id_imagen ASC
      ) i ON i.id_producto = p.id_producto
      LEFT JOIN (
        SELECT DISTINCT ON (id_producto) id_producto, id_categoria
@@ -22,17 +22,13 @@ const findAll = async () => {
   return rows;
 };
 
-/**
- * Busca un producto por ID.
- * @param {number} id
- */
 const findById = async (id) => {
   const { rows } = await db.query(
     `SELECT p.*, i.url AS image_url 
      FROM ecommerce.producto p
      LEFT JOIN ecommerce.imagen i ON i.id_producto = p.id_producto
      WHERE p.id_producto = $1 AND p.estado = 'DISPONIBLE'
-     LIMIT 1`,
+     ORDER BY i.es_principal DESC LIMIT 1`,
     [id]
   );
   if (rows.length === 0) return null;
@@ -47,16 +43,11 @@ const findById = async (id) => {
   };
 };
 
-/**
- * Crea un nuevo producto.
- * @param {Object} data  - { name, description, price, stock, image_url, category_id, brand_id }
- */
 const create = async ({ name, description, price, stock, image_url, brand_id = 1 }) => {
-  const client = await db.pool.connect();
+  const client = await (db.pool ? db.pool.connect() : db.connect());
   try {
     await client.query('BEGIN');
     
-    // Insertar producto
     const prodRes = await client.query(
       `INSERT INTO ecommerce.producto (nombre, descripcion, precio, stock, id_marca)
        VALUES ($1, $2, $3, $4, $5)
@@ -65,10 +56,9 @@ const create = async ({ name, description, price, stock, image_url, brand_id = 1
     );
     const product = prodRes.rows[0];
 
-    // Insertar imagen si existe
     if (image_url) {
       await client.query(
-        'INSERT INTO ecommerce.imagen (id_producto, url) VALUES ($1, $2)',
+        'INSERT INTO ecommerce.imagen (id_producto, url, es_principal) VALUES ($1, $2, true)',
         [product.id, image_url]
       );
       product.image_url = image_url;
@@ -84,16 +74,11 @@ const create = async ({ name, description, price, stock, image_url, brand_id = 1
   }
 };
 
-/**
- * Actualiza un producto por ID.
- * @param {number} id
- * @param {Object} data
- */
 const update = async (id, { name, description, price, stock, image_url }) => {
   const { rows } = await db.query(
     `UPDATE ecommerce.producto
-     SET nombre=$1, descripcion=$2, precio=$3, stock=$4
-     WHERE id_producto=$5
+     SET nombre = $1, descripcion = $2, precio = $3, stock = $4, fecha_actualizacion = CURRENT_TIMESTAMP
+     WHERE id_producto = $5
      RETURNING id_producto AS id, nombre, descripcion, precio, stock`,
     [name, description, price, stock, id]
   );
@@ -102,9 +87,12 @@ const update = async (id, { name, description, price, stock, image_url }) => {
   const product = rows[0];
   if (image_url) {
     await db.query(
-      `INSERT INTO ecommerce.imagen (id_producto, url) 
-       VALUES ($1, $2)
-       ON CONFLICT DO UPDATE SET url = EXCLUDED.url`,
+      `UPDATE ecommerce.imagen SET es_principal = FALSE WHERE id_producto = $1`,
+      [id]
+    );
+    await db.query(
+      `INSERT INTO ecommerce.imagen (id_producto, url, es_principal) 
+       VALUES ($1, $2, TRUE)`,
       [id, image_url]
     );
     product.image_url = image_url;
@@ -115,16 +103,12 @@ const update = async (id, { name, description, price, stock, image_url }) => {
 
 const updateImage = async (id, image_url) => {
   await db.query(
-    `UPDATE ecommerce.imagen SET url = $1 WHERE id_producto = $2`,
+    `UPDATE ecommerce.imagen SET url = $1 WHERE id_producto = $2 AND es_principal = TRUE`,
     [image_url, id]
   );
   return await findById(id);
 };
 
-/**
- * Desactiva (soft-delete) un producto.
- * @param {number} id
- */
 const remove = async (id) => {
   await db.query("UPDATE ecommerce.producto SET estado = 'NO_DISPONIBLE' WHERE id_producto = $1", [id]);
 };

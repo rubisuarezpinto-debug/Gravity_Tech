@@ -1,48 +1,49 @@
 const express = require('express');
 const cors = require('cors');
-const helmet = require('helmet');
-const errorHandler = require('./src/middlewares/errorHandler');
-const securityConfig = require('./src/config/security');
-const { globalLimiter, authLimiter, registerLimiter, orderLimiter } = require('./src/middlewares/rateLimiter');
 
-// Routers
-const authRouter = require('./src/routers/auth.router');
-const productRouter = require('./src/routers/products.router');
-const cartRouter = require('./src/routers/cart.router');
-const orderRouter = require('./src/routers/orders.router');
-const adminRouter = require('./src/routers/admin.router');
-const reviewRouter = require('./src/routers/reviews.router');
 
+// ── 1. INICIALIZACIÓN DE LA APLICACIÓN ──
 const app = express();
 
-// ─── Security Middlewares (ORDER MATTERS) ──────────────────────────────────────
-// 1. Helmet: Set HTTP security headers
-app.use(helmet(securityConfig.helmet));
+// ── 2. MIDDLEWARES GLOBALES ──
+// ── 2. MIDDLEWARES GLOBALES ──
+app.use(cors({
+    origin: '*', // Esto permite que Flutter Web desde Edge se conecte sin bloqueos
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
+    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
+}));
 
-// 2. CORS: Control cross-origin requests
-app.use(cors(securityConfig.cors));
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true }));
 
-// 3. Body parsing
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// ── 3. IMPORTACIÓN DE ENRUTADORES ──
+const authRouter = require('./src/routers/auth.router.js');
+const productoRouter = require('./src/routers/products.router.js');
+const adminRouter = require('./src/routers/admin.router.js');
+const cartRouter = require('./src/routers/cart.router.js');
+const ordersRouter = require('./src/routers/orders.router.js');
 
-// 4. Global Rate Limiting: Protect against brute force
-app.use(globalLimiter);
-
-// ─── Routers ───────────────────────────────────────────────────────────────────
+// ── 4. MONTAJE DE LAS RUTAS GLOBALES ──
 app.use('/api/auth', authRouter);
-app.use('/api/products', productRouter);
-app.use('/api/cart', cartRouter);
-app.use('/api/orders', orderRouter);
+app.use('/api/products', productoRouter);
 app.use('/api/admin', adminRouter);
-app.use('/api/reviews', reviewRouter);
+app.use('/api/cart', cartRouter);
+app.use('/api/orders', ordersRouter);
 
-// ─── Health check ─────────────────────────────────────────────────────────────
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+// ── 5. MIDDLEWARE DE MANEJO DE ERRORES GLOBAL ──
+app.use((err, req, res, next) => {
+    console.error('[Error Servidor]:', err.message);
+    res.status(err.status || 500).json({
+        b_exito: false,
+        v_mensaje: err.message || 'Error interno del servidor en Gravity Tech.'
+    });
 });
 
-// ─── Global Error Handler ─────────────────────────────────────────────────────
-app.use(errorHandler);
+// ── 6. EXPORTAR VARIABLE APP PARA SERVER.JS ──
+module.exports = app; // CORREGIDO: Se eliminó la línea fantasma de router
+// Asegúrate de que esta línea exista y esté configurada:
 
-module.exports = app;
+//const productRoutes = require('./routes/product.routes');
+//app.use('/api', productRoutes); // Esto hace que todo lo que esté en product.routes empiece por /api

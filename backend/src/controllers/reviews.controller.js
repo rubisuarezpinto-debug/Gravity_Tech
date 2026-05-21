@@ -1,10 +1,5 @@
 const Review = require('../models/Review');
 
-/**
- * GET /api/reviews/product/:productId
- * Devuelve todas las reseñas de un producto + promedio de puntuación.
- * Ruta pública.
- */
 const getByProduct = async (req, res, next) => {
   try {
     const { productId } = req.params;
@@ -12,17 +7,16 @@ const getByProduct = async (req, res, next) => {
       Review.findByProduct(productId),
       Review.avgByProduct(productId),
     ]);
-    res.json({ reviews, stats });
+    res.json({
+      reviews,
+      promedio: stats?.promedio || 0,
+      total: stats?.total || 0
+    });
   } catch (err) {
     next(err);
   }
 };
 
-/**
- * POST /api/reviews/product/:productId
- * Crea una reseña para el producto autenticado.
- * Requiere JWT.
- */
 const create = async (req, res, next) => {
   try {
     const { productId } = req.params;
@@ -38,17 +32,12 @@ const create = async (req, res, next) => {
       comentario || null,
       puntuacion
     );
-    res.status(201).json({ review });
+    res.status(201).json(review);
   } catch (err) {
     next(err);
   }
 };
 
-/**
- * DELETE /api/reviews/:id
- * Elimina la reseña solo si pertenece al usuario autenticado.
- * Requiere JWT.
- */
 const remove = async (req, res, next) => {
   try {
     const deleted = await Review.remove(req.params.id, req.user.id);

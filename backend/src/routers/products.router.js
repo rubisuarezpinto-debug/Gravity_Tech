@@ -1,16 +1,15 @@
-const router = require('express').Router();
-const { getAll, getOne, create, update, updateImage, remove } = require('../controllers/products.controller');
-const authenticate = require('../middlewares/authenticate');
-const authorize = require('../middlewares/authorize');
+const express = require('express');
+const router = express.Router();
+const productoController = require('../controllers/products.controller');
 
-// Públicas
-router.get('/', getAll);
-router.get('/:id', getOne);
+// ── RUTAS CLIENTE ──
+// Esta ruta responde a GET /api/products/
+router.get('/', productoController.listarCatalogo);
+router.get('/categorias', productoController.obtenerCategorias);
 
-// Protegidas — solo admin
-router.post('/', authenticate, authorize('administrador'), create);
-router.put('/:id', authenticate, authorize('administrador'), update);
-router.put('/:id/image', authenticate, authorize('administrador'), updateImage);
-router.delete('/:id', authenticate, authorize('administrador'), remove);
+// ── RUTAS EMPLEADO (CRUD Inventario) ──
+router.post('/crear', productoController.registrarProducto);
+router.put('/actualizar/:id', productoController.actualizarProducto);
+router.delete('/eliminar/:id', productoController.eliminarProducto);
 
 module.exports = router;

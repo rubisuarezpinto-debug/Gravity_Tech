@@ -19,3 +19,5 @@ INSERT INTO ecommerce.producto (nombre, descripcion, precio, stock, sku, id_marc
 ('Barra de Sonido Sony A5000', '5.1.2 canales Dolby Atmos', 799.00, 10, 'SO-HT-A5000', 1),
 ('Zapatillas Nike Dunk Low', 'Panda colorway blanco y negro', 115.00, 50, 'NK-DUNK-PND', 2),
 ('SSD Samsung 990 Pro 2TB', 'NVMe Gen4 ultra rápido', 180.00, 100, 'SA-990P-2TB', 3);
+
+SELECT setval('ecommerce.producto_id_producto_seq', COALESCE((SELECT MAX(id_producto) FROM ecommerce.producto), 1));

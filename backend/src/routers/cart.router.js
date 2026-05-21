@@ -2,7 +2,6 @@ const router = require('express').Router();
 const { getCart, addItem, updateItem, removeItem, clearCart } = require('../controllers/cart.controller');
 const authenticate = require('../middlewares/authenticate');
 
-// Todas requieren autenticación
 router.use(authenticate);
 
 router.get('/', getCart);

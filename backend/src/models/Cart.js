@@ -1,9 +1,5 @@
 const db = require('../config/db');
 
-/**
- * Obtiene el carrito activo del usuario con sus items y product info.
- * @param {number} userId
- */
 const findByUser = async (userId) => {
   const { rows } = await db.query(
     `SELECT ci.id_carrito_item AS id, ci.cantidad AS quantity, 
@@ -22,18 +18,11 @@ const findByUser = async (userId) => {
   return rows;
 };
 
-/**
- * Agrega o incrementa un item en el carrito.
- * @param {number} userId
- * @param {number} productId
- * @param {number} quantity
- */
 const addItem = async (userId, productId, quantity = 1) => {
-  const client = await db.pool.connect();
+  const client = await (db.pool ? db.pool.connect() : db.connect());
   try {
     await client.query('BEGIN');
 
-    // Buscar o crear carrito abierto
     let cartRes = await client.query(
       "SELECT id_carrito FROM ecommerce.carrito WHERE id_usuario = $1 AND estado = 'ABIERTO'",
       [userId]
@@ -47,11 +36,9 @@ const addItem = async (userId, productId, quantity = 1) => {
     }
     cartId = cartRes.rows[0].id_carrito;
 
-    // Obtener precio actual del producto
     const prodRes = await client.query('SELECT precio FROM ecommerce.producto WHERE id_producto = $1', [productId]);
     const price = prodRes.rows[0].precio;
 
-    // UPSERT en carrito_item
     const itemRes = await client.query(
       `INSERT INTO ecommerce.carrito_item (id_carrito, id_producto, cantidad, precio_unitario)
        VALUES ($1, $2, $3, $4)
@@ -71,11 +58,6 @@ const addItem = async (userId, productId, quantity = 1) => {
   }
 };
 
-/**
- * Actualiza la cantidad de un item.
- * @param {number} itemId
- * @param {number} quantity
- */
 const updateItem = async (itemId, quantity) => {
   const { rows } = await db.query(
     'UPDATE ecommerce.carrito_item SET cantidad = $1 WHERE id_carrito_item = $2 RETURNING *',
@@ -84,11 +66,6 @@ const updateItem = async (itemId, quantity) => {
   return rows[0] || null;
 };
 
-/**
- * Elimina un item del carrito.
- * @param {number} itemId
- * @param {number} userId
- */
 const removeItem = async (itemId, userId) => {
   await db.query(
     `DELETE FROM ecommerce.carrito_item 
@@ -98,10 +75,6 @@ const removeItem = async (itemId, userId) => {
   );
 };
 
-/**
- * Vacía todo el carrito de un usuario.
- * @param {number} userId
- */
 const clearCart = async (userId) => {
   await db.query(
     "DELETE FROM ecommerce.carrito_item WHERE id_carrito IN (SELECT id_carrito FROM ecommerce.carrito WHERE id_usuario = $1 AND estado = 'ABIERTO')",

@@ -8,3 +8,5 @@ INSERT INTO ecommerce.imagen (id_producto, url) VALUES
 (11, 'https://images.unsplash.com/photo-1517336714460-45732238469d'),
 (15, 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1'),
 (20, 'https://images.unsplash.com/photo-1591488320449-011701bb6704');
+
+SELECT setval('ecommerce.imagen_id_imagen_seq', COALESCE((SELECT MAX(id_imagen) FROM ecommerce.imagen), 1));

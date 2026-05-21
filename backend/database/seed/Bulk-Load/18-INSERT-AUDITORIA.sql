@@ -4,3 +4,5 @@ INSERT INTO ecommerce.auditoria (id_usuario, accion, entidad, detalle) VALUES
 (3, 'UPDATE', 'PRODUCTO', 'Se actualizó stock de iPhone 15 Pro Max'),
 (1, 'CREATE', 'CATEGORIA', 'Nueva categoría Accesorios añadida'),
 (5, 'LOGOUT', 'USUARIO', 'Sesión cerrada correctamente');
+
+SELECT setval('ecommerce.auditoria_id_auditoria_seq', COALESCE((SELECT MAX(id_auditoria) FROM ecommerce.auditoria), 1));

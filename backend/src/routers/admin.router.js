@@ -1,13 +1,8 @@
-const router = require('express').Router();
-const { getAllUsers, getAllOrders, updateOrderStatus } = require('../controllers/admin.controller');
-const authenticate = require('../middlewares/authenticate');
-const authorize = require('../middlewares/authorize');
+const express = require('express');
+const router = express.Router();
+const adminController = require('../controllers/admin.controller');
 
-// Todas requieren estar autenticado y tener rol 'admin'
-router.use(authenticate, authorize('administrador'));
-
-router.get('/users', getAllUsers);
-router.get('/orders', getAllOrders);
-router.patch('/orders/:id/status', updateOrderStatus);
+// GET /api/admin/balance-financiero -> Trae el dinero total vendido y cantidad de transacciones
+router.get('/balance-financiero', adminController.obtenerBalanceFinanciero);
 
 module.exports = router;

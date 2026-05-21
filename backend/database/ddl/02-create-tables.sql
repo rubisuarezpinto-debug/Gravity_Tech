@@ -1,5 +1,5 @@
 -- ##################################################
--- #            DDL SCRIPT: CREATE TABLES           #
+-- #          DDL SCRIPT: CREATE TABLES             #
 -- ##################################################
 -- This script defines the database structure for the eCommerce platform.
 -- Includes tables mapped from the ERD Diagram.
@@ -7,17 +7,17 @@
 -- to avoid circular dependencies during database creation.
 
 -- ##################################################
--- #           SCHEMA CREATION (Optional)           #
+-- #            SCHEMA CREATION (Optional)          #
 -- ##################################################
 
--- RUN IN ecommerce_db - ecommerce_admin
-CREATE SCHEMA IF NOT EXISTS ecommerce AUTHORIZATION ecommerce_admin;
+-- CONFIGURADO PARA ENTORNO INDEPENDIENTE - RUBI SUAREZ
+CREATE SCHEMA IF NOT EXISTS ecommerce AUTHORIZATION ecommerce_admin_rubi;
 
-COMMENT ON DATABASE ecommerce_db IS 'Base de datos del eCommerce';
+COMMENT ON DATABASE gravity_tech_rubi IS 'Base de datos del eCommerce - Versión Rubi';
 COMMENT ON SCHEMA ecommerce IS 'Esquema principal para el eCommerce';
 
 -- ##################################################
--- #                 CATALOG TABLES                 #
+-- #                  CATALOG TABLES                #
 -- ##################################################
 
 -- Table: categorias
@@ -62,6 +62,7 @@ CREATE TABLE IF NOT EXISTS ecommerce.usuario (
     password_hash VARCHAR(255) NOT NULL,
     rol VARCHAR(20) DEFAULT 'cliente',
     estado VARCHAR(20) DEFAULT 'ACTIVO',
+    telefono VARCHAR(20), -- [Ajuste Móvil]: Clave para contacto y repartidores
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -73,6 +74,8 @@ CREATE TABLE IF NOT EXISTS ecommerce.direccion (
     direccion VARCHAR(255) NOT NULL,
     ciudad VARCHAR(100) NOT NULL,
     pais VARCHAR(100) NOT NULL,
+    latitud DECIMAL(10, 8),   -- [Ajuste Móvil]: Para geolocalización y mapas
+    longitud DECIMAL(11, 8),  -- [Ajuste Móvil]: Para geolocalización y mapas
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -94,8 +97,8 @@ CREATE TABLE IF NOT EXISTS ecommerce.producto (
     id_producto SERIAL PRIMARY KEY,
     nombre VARCHAR(200) NOT NULL,
     descripcion TEXT,
-    precio DECIMAL(10, 2) NOT NULL,
-    stock INTEGER DEFAULT 0,
+    precio DECIMAL(10, 2) NOT NULL CHECK (precio >= 0), -- [Ajuste de Seguridad]: Evita valores negativos
+    stock INTEGER DEFAULT 0 CHECK (stock >= 0),         -- [Ajuste de Seguridad]: Evita inventario negativo
     sku VARCHAR(50) UNIQUE,
     id_marca INTEGER NOT NULL,
     estado VARCHAR(20) DEFAULT 'DISPONIBLE',
@@ -115,6 +118,7 @@ CREATE TABLE IF NOT EXISTS ecommerce.imagen (
     id_imagen SERIAL PRIMARY KEY,
     id_producto INTEGER NOT NULL,
     url VARCHAR(500) NOT NULL,
+    es_principal BOOLEAN DEFAULT FALSE, -- [Ajuste Móvil]: Para cargar solo la portada en el catálogo
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -129,7 +133,7 @@ CREATE TABLE IF NOT EXISTS ecommerce.resena (
 );
 
 -- ##################################################
--- #                 CART MODULE                    #
+-- #                  CART MODULE                   #
 -- ##################################################
 
 -- Table: carrito
@@ -152,7 +156,7 @@ CREATE TABLE IF NOT EXISTS ecommerce.carrito_item (
 );
 
 -- ##################################################
--- #                 ORDER MODULE                   #
+-- #                  ORDER MODULE                  #
 -- ##################################################
 
 -- Table: orden
@@ -173,7 +177,7 @@ CREATE TABLE IF NOT EXISTS ecommerce.orden_item (
     id_orden INTEGER NOT NULL,
     id_producto INTEGER NOT NULL,
     cantidad INTEGER NOT NULL DEFAULT 1,
-    precio_unitario DECIMAL(10, 2) NOT NULL
+    precio_unitario DECIMAL(10, 2) NOT NULL -- Aquí se congela el precio viejo al pagar
 );
 
 -- Table: pago
@@ -187,7 +191,7 @@ CREATE TABLE IF NOT EXISTS ecommerce.pago (
 );
 
 -- ##################################################
--- #                 AUDIT MODULE                   #
+-- #                  AUDIT MODULE                  #
 -- ##################################################
 
 -- Table: auditoria
