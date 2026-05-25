@@ -58,11 +58,20 @@ module.exports = {
 
   // ─── CORS Configuration ──────────────────────────────────────────────────
   cors: {
-    origin: process.env.CORS_ORIGIN?.split(',') || [
-      'http://localhost:5000',
-      'http://localhost:3000',
-      ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
-    ],
+    origin: process.env.CORS_ORIGIN
+      ? process.env.CORS_ORIGIN.split(',')
+      : (origin, callback) => {
+          const allowed = [
+            'https://gravitytech2026-a7168.web.app',
+            ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+          ];
+          // Permite cualquier localhost (Flutter web dev) y orígenes de producción
+          if (!origin || /^http:\/\/localhost(:\d+)?$/.test(origin) || allowed.includes(origin)) {
+            callback(null, true);
+          } else {
+            callback(new Error('Not allowed by CORS'));
+          }
+        },
     credentials: true, // Allow cookies to be sent with requests
     optionsSuccessStatus: 200,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],

@@ -1,4 +1,12 @@
+import 'package:flutter/foundation.dart';
+
 class AppConfig {
-  // Android emulator → 10.0.2.2 | dispositivo físico → IP local del PC (ej: 192.168.1.x)
-  static const String apiBase = 'http://10.0.2.2:3000/api';
+  static String get apiBase {
+    // Web (local con chrome o desplegado en Firebase) → siempre Render
+    if (kIsWeb) {
+      return 'https://gravity-tech.onrender.com/api';
+    }
+    // Android emulator
+    return 'http://10.0.2.2:3000/api';
+  }
 }
