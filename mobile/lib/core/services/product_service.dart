@@ -74,12 +74,23 @@ class ProductService {
     }
   }
 
-  static Future<Map<String, dynamic>> updateStock(int id, int stock) async {
+  static Future<Map<String, dynamic>> updateStock(
+    int id,
+    int stock, {
+    String? name,
+    String? description,
+    double? price,
+  }) async {
+    final payload = <String, dynamic>{'stock': stock};
+    if (name != null)        payload['name']        = name;
+    if (description != null) payload['description'] = description;
+    if (price != null)       payload['price']       = price;
+
     final res = await http
         .put(
           Uri.parse('${AppConfig.apiBase}/products/$id'),
           headers: await _authHeaders(),
-          body: jsonEncode({'stock': stock}),
+          body: jsonEncode(payload),
         )
         .timeout(const Duration(seconds: 15));
 

@@ -553,7 +553,16 @@ class _RestockProductSheetState extends State<_RestockProductSheet> {
     });
     try {
       final productId = _selected!['id'] is int ? _selected!['id'] as int : int.parse(_selected!['id'].toString());
-      await ProductService.updateStock(productId, stock);
+      final existingName  = _selected!['name']        as String?;
+      final existingDesc  = _selected!['description'] as String?;
+      final existingPrice = _selected!['price'] is num ? (_selected!['price'] as num).toDouble() : double.tryParse(_selected!['price']?.toString() ?? '');
+      await ProductService.updateStock(
+        productId,
+        stock,
+        name: existingName,
+        description: existingDesc,
+        price: existingPrice,
+      );
       if (!mounted) return;
       Navigator.of(context).pop(true);
     } catch (e) {
