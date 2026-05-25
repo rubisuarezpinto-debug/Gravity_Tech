@@ -8,8 +8,8 @@
 module.exports = {
   // ─── JWT Configuration ──────────────────────────────────────────────────
   jwt: {
-    secret: process.env.JWT_SECRET || 'default-insecure-secret-change-in-production',
-    expiration: process.env.JWT_EXPIRATION || '7d',
+    secret: process.env.JWT_SECRET,
+    expiration: process.env.JWT_EXPIRATION || '1d',
     algorithm: 'HS256',
     // Validate JWT secret strength
     validateSecret: (secret) => {
@@ -43,7 +43,7 @@ module.exports = {
       },
       register: {
         windowMs: 60 * 60 * 1000, // 1 hour
-        max: 100, // 3 requests per hour
+        max: 3, // 3 requests per hour
       },
       forgotPassword: {
         windowMs: 60 * 60 * 1000, // 1 hour

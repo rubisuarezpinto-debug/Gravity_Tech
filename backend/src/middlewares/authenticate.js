@@ -55,7 +55,6 @@ const authenticate = (req, res, next) => {
         return res.status(401).json({
           success: false,
           error: 'Token has expired',
-          expiredAt: verifyError.expiredAt,
         });
       }
 
@@ -69,7 +68,6 @@ const authenticate = (req, res, next) => {
       throw verifyError;
     }
   } catch (error) {
-    console.error('Authentication error:', error.message);
     return res.status(500).json({
       success: false,
       error: 'Authentication failed',

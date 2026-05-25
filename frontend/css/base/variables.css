@@ -1,0 +1,73 @@
+:root {
+  /* ── Paleta Gravity Tech ─────────────────────────────── */
+  --gt-navy:     #1a1040;
+  --gt-purple:   #4c2f9e;
+  --gt-violet:   #7c5cbf;
+  --gt-lavender: #b39ddb;
+  --gt-blue:     #2979d4;
+  --gt-sky:      #5baef0;
+  --gt-pink:     #d4537e;
+  --gt-rose:     #f48fb1;
+  --gt-light:    #f0ecff;
+  --gt-white:    #ffffff;
+  --gt-gray:     #8880a0;
+  --gt-border:   rgba(124,92,191,0.28);
+  --gt-surface:  rgba(255,255,255,0.07);
+  --gt-surface2: rgba(255,255,255,0.04);
+
+  /* ── Gradientes ──────────────────────────────────────── */
+  --grad-primary: linear-gradient(90deg, var(--gt-purple), var(--gt-blue));
+  --grad-pink:    linear-gradient(90deg, var(--gt-pink), #b03a64);
+  --grad-header:  linear-gradient(135deg, #1a1040 0%, #2d1b6e 50%, #1a2a6e 100%);
+  --grad-card:    linear-gradient(135deg, rgba(76,47,158,.35), rgba(41,121,212,.25));
+
+  /* ── Mapeo ───────────────────────────────────────────── */
+  --page-bg:        var(--gt-navy);
+  --searchbar-bg:   rgba(10,6,30,.85);
+  --card-bg:        var(--gt-surface);
+  --card-bg-hover:  rgba(255,255,255,.11);
+  --input-bg:       rgba(255,255,255,.08);
+  --border-color:   var(--gt-border);
+  --text-color:     var(--gt-white);
+  --text-secondary: var(--gt-lavender);
+  --text-muted:     var(--gt-gray);
+  --accent-cyan:    var(--gt-lavender);
+  --price-color:    var(--gt-rose);
+  --btn-add-bg:     var(--gt-purple);
+  --btn-add-hover:  var(--gt-violet);
+
+  /* ── Tipografía ──────────────────────────────────────── */
+  --font-family:    'Segoe UI', system-ui, sans-serif;
+  --font-size-base: 15px;
+  --font-size-lg:   22px;
+  --font-size-md:   15px;
+  --font-size-sm:   13px;
+  --font-size-xs:   11px;
+
+  /* ── Espaciado ───────────────────────────────────────── */
+  --spacing-xs:  4px;
+  --spacing-sm:  8px;
+  --spacing-md:  16px;
+  --spacing-lg:  24px;
+  --spacing-xl:  32px;
+
+  /* ── Radios ──────────────────────────────────────────── */
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-pill: 999px;
+
+  /* ── Sombras ─────────────────────────────────────────── */
+  --shadow-card:       0 4px 24px rgba(0,0,0,.45);
+  --shadow-card-hover: 0 8px 36px rgba(0,0,0,.6);
+  --shadow-btn:        0 2px 12px rgba(76,47,158,.4);
+
+  /* ── Transiciones ────────────────────────────────────── */
+  --transition-fast: 0.18s ease;
+  --transition-mid:  0.28s ease;
+
+  /* Legacy aliases */
+  --border-color-light: var(--gt-border);
+  --badge-stock-bg: rgba(41,121,212,.2);
+  --badge-stock-text: var(--gt-sky);
+}
