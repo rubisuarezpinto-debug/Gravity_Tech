@@ -50,6 +50,22 @@ class AuthService {
     throw Exception(body['error'] ?? 'Error al iniciar sesión');
   }
 
+  // Envía el email de recuperación. Lanza Exception si falla la red.
+  static Future<void> forgotPassword(String email) async {
+    final res = await http
+        .post(
+          Uri.parse('${AppConfig.apiBase}/auth/forgot-password'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'email': email}),
+        )
+        .timeout(const Duration(seconds: 15));
+
+    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    if (body['success'] != true) {
+      throw Exception(body['error'] ?? 'Error al enviar el correo');
+    }
+  }
+
   // Retorna el usuario creado. Lanza Exception con mensaje si falla.
   static Future<Map<String, dynamic>> register(String name, String email, String password) async {
     final res = await http

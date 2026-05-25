@@ -51,4 +51,31 @@ const findById = async (id) => {
 const verifyPassword = (plainPassword, hashedPassword) =>
   compare(plainPassword, hashedPassword);
 
-module.exports = { create, findByEmail, findById, verifyPassword };
+/**
+ * Actualiza la contraseña de un usuario.
+ * @param {number} id
+ * @param {string} newPasswordHash - hash bcrypt listo para guardar
+ */
+const updatePassword = async (id, newPasswordHash) => {
+  await db.query(
+    `UPDATE ecommerce.usuario
+     SET password_hash = $1, fecha_actualizacion = CURRENT_TIMESTAMP
+     WHERE id_usuario = $2`,
+    [newPasswordHash, id]
+  );
+};
+
+/**
+ * Devuelve el password_hash actual de un usuario (para validar tokens de reset).
+ * @param {number} id
+ * @returns {string|null}
+ */
+const getPasswordHash = async (id) => {
+  const { rows } = await db.query(
+    'SELECT password_hash FROM ecommerce.usuario WHERE id_usuario = $1',
+    [id]
+  );
+  return rows[0]?.password_hash ?? null;
+};
+
+module.exports = { create, findByEmail, findById, verifyPassword, updatePassword, getPasswordHash };

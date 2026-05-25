@@ -1,6 +1,11 @@
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { sign } = require('../utils/jwt');
+const { hash } = require('../utils/hash');
 const { sanitizeUser, createSafeResponse } = require('../utils/sanitizer');
+const { sendPasswordReset } = require('../services/email.service');
+
+const RESET_SECRET_SUFFIX = '_reset';
 
 /**
  * ═══════════════════════════════════════════════════════════════════════════
@@ -121,4 +126,82 @@ const me = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login, me };
+/**
+ * ═══════════════════════════════════════════════════════════════════════════
+ * POST /api/auth/forgot-password - Envía email con link de reset
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findByEmail(email);
+
+    // Respuesta genérica siempre — no revelar si el email existe
+    const response = {
+      success: true,
+      message: 'Si ese correo está registrado, recibirás el enlace en breve.',
+    };
+
+    if (!user) return res.json(response);
+
+    const passwordHash = await User.getPasswordHash(user.id);
+
+    // El token expira en 1h y se invalida automáticamente al cambiar la contraseña
+    const resetSecret = process.env.JWT_SECRET + passwordHash + RESET_SECRET_SUFFIX;
+    const token = jwt.sign({ id: user.id }, resetSecret, { expiresIn: '1h' });
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const link = `${frontendUrl}/reset-password.html?token=${token}`;
+
+    await sendPasswordReset(email, user.nombre || 'Usuario', link);
+
+    return res.json(response);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * ═══════════════════════════════════════════════════════════════════════════
+ * POST /api/auth/reset-password - Actualiza la contraseña con el token
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+const resetPassword = async (req, res, next) => {
+  try {
+    const { token, password } = req.body;
+
+    // Decodificar sin verificar para obtener el id primero
+    let decoded;
+    try {
+      decoded = jwt.decode(token);
+    } catch {
+      return res.status(400).json({ success: false, error: 'Token inválido.' });
+    }
+
+    if (!decoded?.id) {
+      return res.status(400).json({ success: false, error: 'Token inválido.' });
+    }
+
+    const passwordHash = await User.getPasswordHash(decoded.id);
+    if (!passwordHash) {
+      return res.status(400).json({ success: false, error: 'Token inválido.' });
+    }
+
+    // Verificar con el secret que incluye el hash actual
+    const resetSecret = process.env.JWT_SECRET + passwordHash + RESET_SECRET_SUFFIX;
+    try {
+      jwt.verify(token, resetSecret);
+    } catch {
+      return res.status(400).json({ success: false, error: 'El enlace expiró o ya fue usado.' });
+    }
+
+    const newHash = await hash(password);
+    await User.updatePassword(decoded.id, newHash);
+
+    return res.json({ success: true, message: 'Contraseña actualizada correctamente.' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { register, login, me, forgotPassword, resetPassword };

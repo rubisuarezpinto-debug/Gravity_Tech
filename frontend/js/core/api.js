@@ -187,6 +187,16 @@ const api = {
 
   /** DELETE /api/reviews/:id — requiere JWT */
   deleteReview: (id) => request('DELETE', `/reviews/${id}`),
+
+  // ════════════════════════════════════════
+  // RECUPERACIÓN DE CONTRASEÑA
+  // ════════════════════════════════════════
+
+  /** POST /api/auth/forgot-password — body: { email } */
+  forgotPassword: (email) => request('POST', '/auth/forgot-password', { email }),
+
+  /** POST /api/auth/reset-password — body: { token, password } */
+  resetPassword: (token, password) => request('POST', '/auth/reset-password', { token, password }),
 };
 
 window.api = api;

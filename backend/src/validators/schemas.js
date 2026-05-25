@@ -162,6 +162,26 @@ const createReviewSchema = [
     .withMessage('Comment must be between 10 and 1000 characters'),
 ];
 
+// ─── Password Reset Schemas ─────────────────────────────────────────────────
+
+const forgotPasswordSchema = [
+  body('email')
+    .trim()
+    .isEmail()
+    .normalizeEmail()
+    .withMessage('Email must be a valid email address'),
+];
+
+const resetPasswordSchema = [
+  body('token')
+    .notEmpty()
+    .withMessage('Reset token is required'),
+
+  body('password')
+    .isLength({ min: 8 })
+    .withMessage('Password must be at least 8 characters long'),
+];
+
 // ─── ID Validation Schemas ──────────────────────────────────────────────────
 
 const idParamSchema = [
@@ -174,6 +194,8 @@ const idParamSchema = [
 module.exports = {
   registerSchema,
   loginSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
   createProductSchema,
   updateProductSchema,
   addToCartSchema,
