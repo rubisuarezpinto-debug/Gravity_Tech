@@ -451,67 +451,101 @@ class _DeleteProductSheetState extends State<_DeleteProductSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return _BottomSheet(
-      title: 'Eliminar producto',
+    final bottomPad = MediaQuery.of(context).viewInsets.bottom;
+    return Container(
+      margin: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1a1a2e),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border),
+      ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          ...widget.products.map((p) {
-            final id = p['id'] is int ? p['id'] as int : int.parse(p['id'].toString());
-            final name = p['name'] as String? ?? '';
-            final selected = _selectedId == id;
-            return GestureDetector(
-              onTap: () => setState(() => _selectedId = id),
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                decoration: BoxDecoration(
-                  color: selected ? const Color(0x33d4537e) : AppColors.surface,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: selected ? AppColors.rose : AppColors.border,
-                  ),
+          // Header
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Eliminar producto',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.white)),
+                GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: const Icon(Icons.close_rounded, color: AppColors.lavender, size: 20),
                 ),
-                child: Row(
-                  children: [
-                    Icon(
-                      selected ? Icons.radio_button_checked_rounded : Icons.radio_button_unchecked_rounded,
-                      size: 18,
-                      color: selected ? AppColors.rose : AppColors.lavender,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                              fontSize: 13,
-                              color: selected ? AppColors.rose : AppColors.white)),
-                    ),
-                    Text('stock: ${p['stock']}',
-                        style: const TextStyle(fontSize: 11, color: AppColors.gray)),
-                  ],
-                ),
-              ),
-            );
-          }),
+              ],
+            ),
+          ),
           const SizedBox(height: 12),
-          if (_selectedId != null)
-            _loading
-                ? const Center(child: CircularProgressIndicator(color: AppColors.rose))
-                : GestureDetector(
-                    onTap: _delete,
+          // Scrollable product list — capped at 60% of screen height
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.45,
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: widget.products.map((p) {
+                  final id = p['id'] is int ? p['id'] as int : int.parse(p['id'].toString());
+                  final name  = p['name'] as String? ?? '';
+                  final stock = int.tryParse(p['stock']?.toString() ?? '') ?? 0;
+                  final selected = _selectedId == id;
+                  return GestureDetector(
+                    onTap: () => setState(() => _selectedId = id),
                     child: Container(
-                      height: 46,
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       decoration: BoxDecoration(
-                        color: const Color(0x66d4537e),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.rose),
+                        color: selected ? const Color(0x33d4537e) : AppColors.surface,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: selected ? AppColors.rose : AppColors.border),
                       ),
-                      alignment: Alignment.center,
-                      child: const Text('Eliminar producto seleccionado',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.rose)),
+                      child: Row(
+                        children: [
+                          Icon(
+                            selected ? Icons.radio_button_checked_rounded : Icons.radio_button_unchecked_rounded,
+                            size: 18,
+                            color: selected ? AppColors.rose : AppColors.lavender,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(fontSize: 13, color: selected ? AppColors.rose : AppColors.white)),
+                          ),
+                          Text('$stock uds', style: const TextStyle(fontSize: 11, color: AppColors.gray)),
+                        ],
+                      ),
                     ),
-                  ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+          // Confirm button — always visible below the list
+          Padding(
+            padding: EdgeInsets.fromLTRB(20, 12, 20, bottomPad + 20),
+            child: _selectedId == null
+                ? const SizedBox.shrink()
+                : _loading
+                    ? const Center(child: CircularProgressIndicator(color: AppColors.rose))
+                    : GestureDetector(
+                        onTap: _delete,
+                        child: Container(
+                          height: 46,
+                          decoration: BoxDecoration(
+                            color: const Color(0x66d4537e),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.rose),
+                          ),
+                          alignment: Alignment.center,
+                          child: const Text('Eliminar producto seleccionado',
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.rose)),
+                        ),
+                      ),
+          ),
         ],
       ),
     );
