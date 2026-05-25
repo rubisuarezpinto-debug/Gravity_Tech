@@ -9,6 +9,8 @@ import 'features/auth/screens/verify_screen.dart';
 import 'features/auth/screens/forgot_password_screen.dart';
 import 'features/client/screens/client_home_screen.dart';
 import 'features/client/screens/cart_screen.dart';
+import 'features/client/screens/catalog_screen.dart';
+import 'features/client/screens/profile_screen.dart';
 import 'features/worker/screens/worker_home_screen.dart';
 import 'features/worker/screens/product_management_screen.dart';
 import 'features/admin/screens/admin_home_screen.dart';
@@ -23,8 +25,10 @@ final _router = GoRouter(
     GoRoute(path: '/register', builder: (context, state) => const RegisterScreen()),
     GoRoute(path: '/verify', builder: (context, state) => const VerifyScreen()),
     GoRoute(path: '/forgot-password', builder: (context, state) => const ForgotPasswordScreen()),
-    GoRoute(path: '/client/home', builder: (context, state) => const ClientHomeScreen()),
-    GoRoute(path: '/client/cart', builder: (context, state) => const CartScreen()),
+    GoRoute(path: '/client/home',    builder: (context, state) => const ClientHomeScreen()),
+    GoRoute(path: '/client/cart',    builder: (context, state) => const CartScreen()),
+    GoRoute(path: '/client/catalog', builder: (context, state) => const CatalogScreen()),
+    GoRoute(path: '/client/profile', builder: (context, state) => const ProfileScreen()),
     GoRoute(path: '/worker/home', builder: (context, state) => const WorkerHomeScreen()),
     GoRoute(path: '/worker/products', builder: (context, state) => const ProductManagementScreen()),
     GoRoute(path: '/admin/home', builder: (context, state) => const AdminHomeScreen()),

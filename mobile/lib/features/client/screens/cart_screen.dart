@@ -162,7 +162,11 @@ class _CartScreenState extends State<CartScreen> {
                         ),
             ),
             ClientBottomNav(currentIndex: 2, onTap: (i) {
-              if (i == 0) context.go('/client/home');
+              switch (i) {
+                case 0: context.go('/client/home');
+                case 1: context.go('/client/catalog');
+                case 3: context.go('/client/profile');
+              }
             }),
           ],
         ),

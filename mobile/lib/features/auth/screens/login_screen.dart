@@ -51,9 +51,9 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
       final role = user['rol'] as String? ?? 'cliente';
       switch (role) {
-        case 'administrador':
+        case 'admin':
           context.go('/admin/home');
-        case 'trabajador':
+        case 'empleado':
           context.go('/worker/home');
         default:
           context.go('/client/home');

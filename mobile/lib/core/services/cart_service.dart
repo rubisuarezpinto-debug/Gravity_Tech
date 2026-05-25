@@ -25,6 +25,21 @@ class CartService {
     throw Exception('Error al cargar el carrito');
   }
 
+  static Future<void> addItem(int productId, {int quantity = 1}) async {
+    final res = await http
+        .post(
+          Uri.parse('${AppConfig.apiBase}/cart'),
+          headers: await _authHeaders(),
+          body: jsonEncode({'product_id': productId, 'quantity': quantity}),
+        )
+        .timeout(const Duration(seconds: 15));
+
+    if (res.statusCode != 201) {
+      final body = jsonDecode(res.body) as Map<String, dynamic>;
+      throw Exception(body['error'] ?? 'Error al agregar al carrito');
+    }
+  }
+
   static Future<void> removeItem(int itemId) async {
     final res = await http
         .delete(Uri.parse('${AppConfig.apiBase}/cart/$itemId'), headers: await _authHeaders())

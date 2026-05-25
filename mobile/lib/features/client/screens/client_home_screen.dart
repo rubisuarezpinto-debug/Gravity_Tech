@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/product_service.dart';
+import '../../../core/services/cart_service.dart';
 import '../widgets/client_bottom_nav.dart';
 
 class ClientHomeScreen extends StatefulWidget {
@@ -27,30 +28,24 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
   }
 
   Future<void> _loadData() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
+    setState(() { _loading = true; _error = null; });
     try {
       final results = await Future.wait([
         ProductService.getProducts(),
         AuthService.getUser(),
       ]);
       final products = results[0] as List<Map<String, dynamic>>;
-      final user = results[1] as Map<String, dynamic>?;
+      final user    = results[1] as Map<String, dynamic>?;
       if (!mounted) return;
       setState(() {
-        _products = products;
-        _filtered = products;
-        _userName = user?['nombre'] as String? ?? 'Usuario';
-        _loading = false;
+        _products  = products;
+        _filtered  = products;
+        _userName  = user?['nombre'] as String? ?? 'Usuario';
+        _loading   = false;
       });
     } catch (e) {
       if (!mounted) return;
-      setState(() {
-        _error = e.toString().replaceFirst('Exception: ', '');
-        _loading = false;
-      });
+      setState(() { _error = e.toString().replaceFirst('Exception: ', ''); _loading = false; });
     }
   }
 
@@ -64,14 +59,46 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
   }
 
   List<String> get _categories {
-    final cats = _products.map((p) => p['category'] as String? ?? '').where((c) => c.isNotEmpty).toSet().toList();
+    final cats = _products
+        .map((p) => p['category'] as String? ?? '')
+        .where((c) => c.isNotEmpty)
+        .toSet()
+        .toList();
     return ['Todo', ...cats];
+  }
+
+  void _onNavTap(int i) {
+    switch (i) {
+      case 1: context.go('/client/catalog');
+      case 2: context.go('/client/cart');
+      case 3: context.go('/client/profile');
+    }
   }
 
   Future<void> _logout() async {
     await AuthService.clearSession();
     if (!mounted) return;
     context.go('/login');
+  }
+
+  void _addToCart(Map<String, dynamic> product) async {
+    final id = product['id'] as int?;
+    if (id == null) return;
+    try {
+      await CartService.addItem(id);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('${product['name']} agregado al carrito'),
+        backgroundColor: AppColors.purple,
+        duration: const Duration(seconds: 2),
+      ));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(e.toString().replaceFirst('Exception: ', '')),
+        backgroundColor: AppColors.rose,
+      ));
+    }
   }
 
   @override
@@ -86,71 +113,73 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                   ? const Center(child: CircularProgressIndicator(color: AppColors.violet))
                   : _error != null
                       ? _ErrorView(message: _error!, onRetry: _loadData)
-                      : SingleChildScrollView(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text('Hola, $_userName',
-                                          style: const TextStyle(fontSize: 12, color: AppColors.lavender)),
-                                      const SizedBox(height: 2),
-                                      const Text('¿Qué buscas hoy?',
-                                          style: TextStyle(
-                                              fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.white)),
-                                    ],
-                                  ),
-                                  _LogoutBtn(onTap: _logout),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              const SizedBox(height: 16),
-                              const Text('Categorías',
-                                  style: TextStyle(
-                                      fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.lavender)),
-                              const SizedBox(height: 10),
-                              _CategoryChips(
-                                categories: _categories,
-                                selected: _selectedCategory,
-                                onSelect: _filterByCategory,
-                              ),
-                              const SizedBox(height: 16),
-                              Text('Productos (${_filtered.length})',
-                                  style: const TextStyle(
-                                      fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.lavender)),
-                              const SizedBox(height: 10),
-                              _filtered.isEmpty
-                                  ? const Center(
-                                      child: Padding(
-                                        padding: EdgeInsets.all(24),
-                                        child: Text('No hay productos disponibles',
-                                            style: TextStyle(color: AppColors.gray, fontSize: 13)),
-                                      ),
-                                    )
-                                  : GridView.builder(
-                                      shrinkWrap: true,
-                                      physics: const NeverScrollableScrollPhysics(),
-                                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 2,
-                                        mainAxisSpacing: 10,
-                                        crossAxisSpacing: 10,
-                                        childAspectRatio: 1.1,
-                                      ),
-                                      itemCount: _filtered.length,
-                                      itemBuilder: (_, i) => _ProductCard(product: _filtered[i]),
+                      : RefreshIndicator(
+                          onRefresh: _loadData,
+                          color: AppColors.violet,
+                          child: SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Hola, $_userName',
+                                            style: const TextStyle(fontSize: 12, color: AppColors.lavender)),
+                                        const SizedBox(height: 2),
+                                        const Text('¿Qué buscas hoy?',
+                                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.white)),
+                                      ],
                                     ),
-                            ],
+                                    _LogoutBtn(onTap: _logout),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                const Text('Categorías',
+                                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.lavender)),
+                                const SizedBox(height: 10),
+                                _CategoryChips(
+                                  categories: _categories,
+                                  selected: _selectedCategory,
+                                  onSelect: _filterByCategory,
+                                ),
+                                const SizedBox(height: 16),
+                                Text('Productos (${_filtered.length})',
+                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.lavender)),
+                                const SizedBox(height: 10),
+                                _filtered.isEmpty
+                                    ? const Center(
+                                        child: Padding(
+                                          padding: EdgeInsets.all(24),
+                                          child: Text('No hay productos disponibles',
+                                              style: TextStyle(color: AppColors.gray, fontSize: 13)),
+                                        ),
+                                      )
+                                    : GridView.builder(
+                                        shrinkWrap: true,
+                                        physics: const NeverScrollableScrollPhysics(),
+                                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 2,
+                                          mainAxisSpacing: 10,
+                                          crossAxisSpacing: 10,
+                                          childAspectRatio: 0.78,
+                                        ),
+                                        itemCount: _filtered.length,
+                                        itemBuilder: (_, i) => _ProductCard(
+                                          product: _filtered[i],
+                                          onAddToCart: () => _addToCart(_filtered[i]),
+                                        ),
+                                      ),
+                              ],
+                            ),
                           ),
                         ),
             ),
-            ClientBottomNav(currentIndex: 0, onTap: (i) {
-              if (i == 2) context.go('/client/cart');
-            }),
+            ClientBottomNav(currentIndex: 0, onTap: _onNavTap),
           ],
         ),
       ),
@@ -158,13 +187,101 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
   }
 }
 
-class _CategoryChips extends StatelessWidget {
-  const _CategoryChips({
-    required this.categories,
-    required this.selected,
-    required this.onSelect,
-  });
+// ── Tarjeta de producto ──────────────────────────────────────
 
+class _ProductCard extends StatelessWidget {
+  const _ProductCard({required this.product, required this.onAddToCart});
+  final Map<String, dynamic> product;
+  final VoidCallback onAddToCart;
+
+  @override
+  Widget build(BuildContext context) {
+    final name     = product['name']  as String? ?? '';
+    final price    = product['price'];
+    final stock    = product['stock'] as int? ?? 0;
+    final imageUrl = product['image_url'] as String?;
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: imageUrl != null && imageUrl.isNotEmpty
+                  ? Image.network(
+                      imageUrl,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (ctx, err, st) => _PlaceholderImage(),
+                      loadingBuilder: (_, child, progress) => progress == null
+                          ? child
+                          : Container(
+                              color: const Color(0xFF1a1f3a),
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2, color: AppColors.violet),
+                              ),
+                            ),
+                    )
+                  : _PlaceholderImage(),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.white)),
+          const SizedBox(height: 2),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('\$${(price as num?)?.toStringAsFixed(2) ?? '0.00'}',
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.rose)),
+              if (stock > 0)
+                GestureDetector(
+                  onTap: onAddToCart,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: AppColors.purple,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Icon(Icons.add_rounded, size: 14, color: AppColors.white),
+                  ),
+                )
+              else
+                const Text('Agotado', style: TextStyle(fontSize: 9, color: AppColors.gray)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlaceholderImage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: const Color(0xFF1a1f3a),
+      child: const Center(
+        child: Icon(Icons.devices_rounded, size: 28, color: AppColors.lavender),
+      ),
+    );
+  }
+}
+
+// ── Chips de categoría ───────────────────────────────────────
+
+class _CategoryChips extends StatelessWidget {
+  const _CategoryChips({required this.categories, required this.selected, required this.onSelect});
   final List<String> categories;
   final String selected;
   final ValueChanged<String> onSelect;
@@ -199,51 +316,7 @@ class _CategoryChips extends StatelessWidget {
   }
 }
 
-class _ProductCard extends StatelessWidget {
-  const _ProductCard({required this.product});
-  final Map<String, dynamic> product;
-
-  @override
-  Widget build(BuildContext context) {
-    final name = product['name'] as String? ?? '';
-    final price = product['price'];
-    final stock = product['stock'] as int? ?? 0;
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: AppColors.gradientCard,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Center(
-                child: Icon(Icons.devices_rounded, size: 28, color: AppColors.lavender),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.white)),
-          Text('\$${price?.toStringAsFixed(2) ?? '0.00'}',
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.rose)),
-          if (stock == 0)
-            const Text('Sin stock',
-                style: TextStyle(fontSize: 10, color: AppColors.gray)),
-        ],
-      ),
-    );
-  }
-}
+// ── Error view ───────────────────────────────────────────────
 
 class _ErrorView extends StatelessWidget {
   const _ErrorView({required this.message, required this.onRetry});
@@ -282,6 +355,8 @@ class _ErrorView extends StatelessWidget {
     );
   }
 }
+
+// ── Botón salir ──────────────────────────────────────────────
 
 class _LogoutBtn extends StatelessWidget {
   const _LogoutBtn({required this.onTap});
