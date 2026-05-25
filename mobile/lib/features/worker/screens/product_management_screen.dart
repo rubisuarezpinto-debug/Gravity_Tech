@@ -212,7 +212,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                       const Text('Sin productos', style: TextStyle(fontSize: 12, color: AppColors.gray))
                     else
                       ..._products
-                          .where((p) => (p['stock'] as int? ?? 0) < 5)
+                          .where((p) => (int.tryParse(p['stock']?.toString() ?? '') ?? 0) < 5)
                           .take(5)
                           .map((p) => _ProductRow(product: p)),
                   ],

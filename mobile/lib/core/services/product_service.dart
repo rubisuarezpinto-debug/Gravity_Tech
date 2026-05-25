@@ -60,7 +60,7 @@ class ProductService {
 
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     if (res.statusCode == 201) return body['product'] as Map<String, dynamic>;
-    throw Exception(body['message'] ?? body['errors']?.toString() ?? 'Error al crear producto');
+    throw Exception(body['error'] ?? body['message'] ?? body['errors']?.toString() ?? 'Error al crear producto');
   }
 
   static Future<void> deleteProduct(int id) async {
@@ -70,7 +70,7 @@ class ProductService {
 
     if (res.statusCode != 200) {
       final body = jsonDecode(res.body) as Map<String, dynamic>;
-      throw Exception(body['message'] ?? 'Error al eliminar producto');
+      throw Exception(body['error'] ?? body['message'] ?? 'Error al eliminar producto');
     }
   }
 
@@ -85,6 +85,6 @@ class ProductService {
 
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     if (res.statusCode == 200) return body['product'] as Map<String, dynamic>;
-    throw Exception(body['message'] ?? 'Error al actualizar producto');
+    throw Exception(body['error'] ?? body['message'] ?? 'Error al actualizar producto');
   }
 }
