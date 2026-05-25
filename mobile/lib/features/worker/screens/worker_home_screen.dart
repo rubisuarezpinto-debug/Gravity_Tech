@@ -155,7 +155,7 @@ class _StockAlertTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final name = product['name'] as String? ?? '';
-    final stock = product['stock'] as int? ?? 0;
+    final stock = int.tryParse(product['stock']?.toString() ?? '') ?? 0;
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),

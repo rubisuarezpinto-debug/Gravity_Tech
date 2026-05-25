@@ -197,8 +197,8 @@ class _ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final name     = product['name']  as String? ?? '';
-    final price    = product['price'];
-    final stock    = product['stock'] as int? ?? 0;
+    final price    = double.tryParse(product['price']?.toString() ?? '') ?? 0.0;
+    final stock    = int.tryParse(product['stock']?.toString() ?? '') ?? 0;
     final imageUrl = product['image_url'] as String?;
 
     return Container(
@@ -242,7 +242,7 @@ class _ProductCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('\$${(price as num?)?.toStringAsFixed(2) ?? '0.00'}',
+              Text('\$${price.toStringAsFixed(2)}',
                   style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.rose)),
               if (stock > 0)
                 GestureDetector(

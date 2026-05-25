@@ -166,9 +166,9 @@ class _CatalogTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final name     = product['name']     as String? ?? '';
-    final price    = product['price'];
+    final price    = double.tryParse(product['price']?.toString() ?? '') ?? 0.0;
     final category = product['category'] as String? ?? '';
-    final stock    = product['stock']    as int? ?? 0;
+    final stock    = int.tryParse(product['stock']?.toString() ?? '') ?? 0;
     final imageUrl = product['image_url'] as String?;
 
     return Container(
@@ -210,7 +210,7 @@ class _CatalogTile extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('\$${(price as num?)?.toStringAsFixed(2) ?? '0.00'}',
+              Text('\$${price.toStringAsFixed(2)}',
                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.rose)),
               const SizedBox(height: 6),
               if (stock > 0)

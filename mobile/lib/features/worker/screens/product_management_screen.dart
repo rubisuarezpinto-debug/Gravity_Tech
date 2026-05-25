@@ -236,7 +236,7 @@ class _ProductRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final name = product['name'] as String? ?? '';
-    final stock = product['stock'] as int? ?? 0;
+    final stock = int.tryParse(product['stock']?.toString() ?? '') ?? 0;
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
