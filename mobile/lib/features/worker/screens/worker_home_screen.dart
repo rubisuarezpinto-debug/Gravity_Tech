@@ -140,6 +140,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
             ),
             WorkerBottomNav(currentIndex: 0, onTap: (i) {
               if (i == 1) context.go('/worker/products');
+              if (i == 2) context.go('/worker/profile');
             }),
           ],
         ),

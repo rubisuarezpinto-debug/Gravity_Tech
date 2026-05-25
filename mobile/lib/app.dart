@@ -13,6 +13,7 @@ import 'features/client/screens/catalog_screen.dart';
 import 'features/client/screens/profile_screen.dart';
 import 'features/worker/screens/worker_home_screen.dart';
 import 'features/worker/screens/product_management_screen.dart';
+import 'features/worker/screens/worker_profile_screen.dart';
 import 'features/admin/screens/admin_home_screen.dart';
 import 'features/admin/screens/admin_analytics_screen.dart';
 import 'features/admin/screens/admin_staff_screen.dart';
@@ -31,6 +32,7 @@ final _router = GoRouter(
     GoRoute(path: '/client/profile', builder: (context, state) => const ProfileScreen()),
     GoRoute(path: '/worker/home', builder: (context, state) => const WorkerHomeScreen()),
     GoRoute(path: '/worker/products', builder: (context, state) => const ProductManagementScreen()),
+    GoRoute(path: '/worker/profile', builder: (context, state) => const WorkerProfileScreen()),
     GoRoute(path: '/admin/home', builder: (context, state) => const AdminHomeScreen()),
     GoRoute(path: '/admin/analytics', builder: (context, state) => const AdminAnalyticsScreen()),
     GoRoute(path: '/admin/staff', builder: (context, state) => const AdminStaffScreen()),

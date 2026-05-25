@@ -221,6 +221,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
             ),
             WorkerBottomNav(currentIndex: 1, onTap: (i) {
               if (i == 0) context.go('/worker/home');
+              if (i == 2) context.go('/worker/profile');
             }),
           ],
         ),
