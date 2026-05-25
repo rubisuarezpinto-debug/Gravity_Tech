@@ -11,7 +11,7 @@
 
 // ── Abrir / cerrar modal ──────────────────────────────────
 function openAdminPanel() {
-  if (!auth.requireAdmin()) return;
+  if (!auth.requireTrabajador()) return;
   document.getElementById('admin-overlay').classList.add('open');
   loadAdminProducts();
   clearAdminForm();
@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('admin-close-btn')?.addEventListener('click', closeAdminPanel);
   
   if (document.getElementById('admin-products-list') && !document.getElementById('admin-overlay')) {
-    if (auth.requireAdmin()) {
+    if (auth.requireTrabajador()) {
       loadAdminProducts();
     }
   }

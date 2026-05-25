@@ -87,7 +87,16 @@ function isLoggedIn() {
  */
 function isAdmin() {
   const user = getUser();
-  return user?.rol === 'administrador';
+  return user?.rol === 'admin';
+}
+
+/**
+ * True si el usuario tiene rol 'trabajador'.
+ * @returns {boolean}
+ */
+function isTrabajador() {
+  const user = getUser();
+  return user?.rol === 'trabajador';
 }
 
 /**
@@ -123,8 +132,19 @@ function requireAdmin() {
   return true;
 }
 
+/**
+ * Protección de ruta: redirige al inicio si no es trabajador ni admin.
+ */
+function requireTrabajador() {
+  if (!isLoggedIn() || (!isAdmin() && !isTrabajador())) {
+    window.location.href = 'index.html';
+    return false;
+  }
+  return true;
+}
+
 // Exponer globalmente para que api.js y otros archivos lo usen
-window.auth = { setSession, getToken, getUser, isLoggedIn, isAdmin, logout, requireAuth, requireAdmin };
+window.auth = { setSession, getToken, getUser, isLoggedIn, isAdmin, isTrabajador, logout, requireAuth, requireAdmin, requireTrabajador };
 
 
 // ════════════════════════════════════════
@@ -232,6 +252,10 @@ async function handleLogin() {
     const data = await api.login({ email: emailEl.value.trim(), password: passwordEl.value });
     // api.login llama a setSession internamente
     if (isAdmin()) {
+      window.location.href = 'admin-products.html';
+      return;
+    }
+    if (isTrabajador()) {
       window.location.href = 'admin-products.html';
       return;
     }
