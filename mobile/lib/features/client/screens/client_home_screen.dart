@@ -216,7 +216,7 @@ class _ProductCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               child: imageUrl != null && imageUrl.isNotEmpty
                   ? Image.network(
-                      imageUrl,
+                      _resolveImageUrl(imageUrl),
                       width: double.infinity,
                       fit: BoxFit.cover,
                       errorBuilder: (ctx, err, st) => _PlaceholderImage(),
@@ -264,6 +264,13 @@ class _ProductCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String _resolveImageUrl(String url) {
+  if (url.contains('images.unsplash.com') && !url.contains('?')) {
+    return '$url?w=600&q=80&auto=format&fit=crop';
+  }
+  return url;
 }
 
 class _PlaceholderImage extends StatelessWidget {

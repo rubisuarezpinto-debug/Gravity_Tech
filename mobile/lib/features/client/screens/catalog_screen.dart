@@ -187,7 +187,7 @@ class _CatalogTile extends StatelessWidget {
               width: 56,
               height: 56,
               child: imageUrl != null && imageUrl.isNotEmpty
-                  ? Image.network(imageUrl, fit: BoxFit.cover,
+                  ? Image.network(_resolveImageUrl(imageUrl), fit: BoxFit.cover,
                       errorBuilder: (ctx, err, st) => _IconBox())
                   : _IconBox(),
             ),
@@ -233,6 +233,13 @@ class _CatalogTile extends StatelessWidget {
       ),
     );
   }
+}
+
+String _resolveImageUrl(String url) {
+  if (url.contains('images.unsplash.com') && !url.contains('?')) {
+    return '$url?w=200&q=80&auto=format&fit=crop';
+  }
+  return url;
 }
 
 class _IconBox extends StatelessWidget {
