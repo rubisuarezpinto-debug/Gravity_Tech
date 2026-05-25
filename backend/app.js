@@ -11,7 +11,9 @@ const productRouter = require('./src/routers/products.router');
 const cartRouter = require('./src/routers/cart.router');
 const orderRouter = require('./src/routers/orders.router');
 const adminRouter = require('./src/routers/admin.router');
-const reviewRouter = require('./src/routers/reviews.router');
+const reviewRouter    = require('./src/routers/reviews.router');
+const favoritesRouter = require('./src/routers/favorites.router');
+const couponsRouter   = require('./src/routers/coupons.router');
 
 const app = express();
 
@@ -35,7 +37,9 @@ app.use('/api/products', productRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/orders', orderRouter);
 app.use('/api/admin', adminRouter);
-app.use('/api/reviews', reviewRouter);
+app.use('/api/reviews',   reviewRouter);
+app.use('/api/favorites', favoritesRouter);
+app.use('/api/coupons',   couponsRouter);
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
