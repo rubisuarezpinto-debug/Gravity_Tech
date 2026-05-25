@@ -4,6 +4,14 @@ import '../config/app_config.dart';
 import 'auth_service.dart';
 
 class ProductService {
+  static String? _fixImageUrl(String? url) {
+    if (url == null || url.isEmpty) return null;
+    if (url.contains('images.unsplash.com') && !url.contains('?')) {
+      return '$url?w=600&q=80&auto=format&fit=crop';
+    }
+    return url;
+  }
+
   static Future<Map<String, String>> _authHeaders() async {
     final token = await AuthService.getToken();
     return {
@@ -19,7 +27,13 @@ class ProductService {
 
     if (res.statusCode == 200) {
       final body = jsonDecode(res.body) as Map<String, dynamic>;
-      return (body['products'] as List).cast<Map<String, dynamic>>();
+      return (body['products'] as List)
+          .cast<Map<String, dynamic>>()
+          .map((p) => {
+                ...p,
+                'image_url': _fixImageUrl(p['image_url'] as String?),
+              })
+          .toList();
     }
     throw Exception('Error al cargar productos');
   }

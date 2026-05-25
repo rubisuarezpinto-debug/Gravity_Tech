@@ -41,6 +41,10 @@
     For more details:
     * https://docs.flutter.dev/platform-integration/web/initialization
   -->
+  <script>
+    // Forzar HTML renderer para que Image.network cargue imágenes externas sin problemas de CORS/CanvasKit
+    window.flutterConfiguration = { renderer: "html" };
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
