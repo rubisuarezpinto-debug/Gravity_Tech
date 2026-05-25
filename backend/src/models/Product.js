@@ -3,7 +3,7 @@ const db = require('../config/db');
 const findAll = async () => {
   const { rows } = await db.query(
     `SELECT p.id_producto AS id, p.nombre AS name, p.descripcion AS description,
-            p.precio AS price, p.stock, i.url AS image_url,
+            p.precio::float AS price, p.stock::int AS stock, i.url AS image_url,
             c.nombre AS category
      FROM ecommerce.producto p
      LEFT JOIN ecommerce.imagen i

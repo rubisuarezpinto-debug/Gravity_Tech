@@ -455,7 +455,7 @@ class _DeleteProductSheetState extends State<_DeleteProductSheet> {
       child: Column(
         children: [
           ...widget.products.map((p) {
-            final id = p['id'] as int;
+            final id = p['id'] is int ? p['id'] as int : int.parse(p['id'].toString());
             final name = p['name'] as String? ?? '';
             final selected = _selectedId == id;
             return GestureDetector(
@@ -551,7 +551,8 @@ class _RestockProductSheetState extends State<_RestockProductSheet> {
       _error = null;
     });
     try {
-      await ProductService.updateStock(_selected!['id'] as int, stock);
+      final productId = _selected!['id'] is int ? _selected!['id'] as int : int.parse(_selected!['id'].toString());
+      await ProductService.updateStock(productId, stock);
       if (!mounted) return;
       Navigator.of(context).pop(true);
     } catch (e) {
@@ -600,7 +601,7 @@ class _RestockProductSheetState extends State<_RestockProductSheet> {
                 onChanged: (p) {
                   setState(() {
                     _selected = p;
-                    _stockCtrl.text = '${p?['stock'] ?? ''}';
+                    _stockCtrl.text = p?['stock']?.toString() ?? '';
                   });
                 },
               ),

@@ -3,9 +3,10 @@ const db = require('../config/db');
 const findByUser = async (userId) => {
   const { rows } = await db.query(
     `SELECT ci.id_carrito_item AS id, ci.cantidad AS quantity,
-            p.id_producto AS product_id, p.nombre AS name, p.precio AS price,
+            p.id_producto AS product_id, p.nombre AS name,
+            p.precio::float AS price,
             i.url AS image_url,
-            (ci.cantidad * ci.precio_unitario) AS subtotal
+            (ci.cantidad * ci.precio_unitario)::float AS subtotal
      FROM ecommerce.carrito_item ci
      JOIN ecommerce.carrito c ON c.id_carrito = ci.id_carrito
      JOIN ecommerce.producto p ON p.id_producto = ci.id_producto

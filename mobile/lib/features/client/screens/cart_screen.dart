@@ -60,8 +60,11 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
+  static double _toDouble(dynamic v) =>
+      v is num ? v.toDouble() : double.tryParse(v?.toString() ?? '') ?? 0.0;
+
   double get _total =>
-      _items.fold(0.0, (sum, item) => sum + (item['subtotal'] as num? ?? 0).toDouble());
+      _items.fold(0.0, (sum, item) => sum + _toDouble(item['subtotal']));
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +131,8 @@ class _CartScreenState extends State<CartScreen> {
                                 else ...[
                                   ..._items.map((item) => _CartItemTile(
                                         item: item,
-                                        onRemove: () => _removeItem(item['id'] as int),
+                                        onRemove: () => _removeItem(
+                                            item['id'] is int ? item['id'] as int : int.parse(item['id'].toString())),
                                       )),
                                   const Divider(color: AppColors.border, height: 24),
                                   Row(
@@ -183,8 +187,8 @@ class _CartItemTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final name = item['name'] as String? ?? '';
-    final qty = item['quantity'] as int? ?? 1;
-    final subtotal = (item['subtotal'] as num?)?.toDouble() ?? 0.0;
+    final qty = item['quantity'] is int ? item['quantity'] as int : int.tryParse(item['quantity']?.toString() ?? '') ?? 1;
+    final subtotal = item['subtotal'] is num ? (item['subtotal'] as num).toDouble() : double.tryParse(item['subtotal']?.toString() ?? '') ?? 0.0;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),

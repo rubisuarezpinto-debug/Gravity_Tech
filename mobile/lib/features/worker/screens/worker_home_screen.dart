@@ -44,7 +44,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
       setState(() {
         _totalProducts = products.length;
         _lowStock = products
-            .where((p) => (p['stock'] as int? ?? 0) < _lowStockThreshold)
+            .where((p) => (int.tryParse(p['stock']?.toString() ?? '') ?? 0) < _lowStockThreshold)
             .toList();
         _userName = user?['nombre'] as String? ?? 'Trabajador';
         _loading = false;
@@ -154,7 +154,7 @@ class _StockAlertTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name = product['name'] as String? ?? '';
+    final name  = product['name'] as String? ?? '';
     final stock = int.tryParse(product['stock']?.toString() ?? '') ?? 0;
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
