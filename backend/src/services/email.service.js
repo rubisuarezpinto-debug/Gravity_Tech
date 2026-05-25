@@ -1,19 +1,12 @@
 const { Resend } = require('resend');
 
-if (!process.env.RESEND_API_KEY) {
-  throw new Error('RESEND_API_KEY environment variable is required');
-}
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = process.env.FROM_EMAIL || 'Gravity Tech <noreply@gravitytech.com>';
 
-/**
- * Envía el email de recuperación de contraseña.
- * @param {string} to      - Email del destinatario
- * @param {string} name    - Nombre del usuario
- * @param {string} link    - URL con el token de reset
- */
 const sendPasswordReset = async (to, name, link) => {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY no configurado — el email de recuperación no se puede enviar');
+  }
+  const resend = new Resend(process.env.RESEND_API_KEY);
   await resend.emails.send({
     from: FROM,
     to,
