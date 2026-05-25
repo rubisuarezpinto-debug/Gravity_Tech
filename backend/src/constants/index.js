@@ -1,7 +1,7 @@
 const ROLES = Object.freeze({
-  ADMIN:      'admin',
-  CLIENTE:    'cliente',
-  TRABAJADOR: 'trabajador',
+  ADMIN:     'admin',
+  CLIENTE:   'cliente',
+  EMPLEADO:  'empleado',
 });
 
 const ORDER_STATUS = Object.freeze({

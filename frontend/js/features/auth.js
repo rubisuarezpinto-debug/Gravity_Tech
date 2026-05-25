@@ -91,12 +91,12 @@ function isAdmin() {
 }
 
 /**
- * True si el usuario tiene rol 'trabajador'.
+ * True si el usuario tiene rol 'empleado'.
  * @returns {boolean}
  */
 function isTrabajador() {
   const user = getUser();
-  return user?.rol === 'trabajador';
+  return user?.rol === 'empleado';
 }
 
 /**

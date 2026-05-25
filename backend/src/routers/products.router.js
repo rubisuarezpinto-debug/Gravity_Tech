@@ -7,10 +7,10 @@ const authorize = require('../middlewares/authorize');
 router.get('/', getAll);
 router.get('/:id', getOne);
 
-// Protegidas — admin y trabajador
-router.post('/', authenticate, authorize('admin', 'trabajador'), create);
-router.put('/:id', authenticate, authorize('admin', 'trabajador'), update);
-router.put('/:id/image', authenticate, authorize('admin', 'trabajador'), updateImage);
-router.delete('/:id', authenticate, authorize('admin', 'trabajador'), remove);
+// Protegidas — admin y empleado
+router.post('/', authenticate, authorize('admin', 'empleado'), create);
+router.put('/:id', authenticate, authorize('admin', 'empleado'), update);
+router.put('/:id/image', authenticate, authorize('admin', 'empleado'), updateImage);
+router.delete('/:id', authenticate, authorize('admin', 'empleado'), remove);
 
 module.exports = router;
