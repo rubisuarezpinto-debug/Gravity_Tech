@@ -74,13 +74,29 @@ const create = async ({ name, description, price, stock, image_url, brand_id = 1
   }
 };
 
-const update = async (id, { name, description, price, stock, image_url }) => {
+const update = async (id, fields) => {
+  const { name, description, price, stock, image_url } = fields;
+
+  const setClauses = [];
+  const values = [];
+  let idx = 1;
+
+  if (name !== undefined)        { setClauses.push(`nombre=$${idx++}`);      values.push(name); }
+  if (description !== undefined) { setClauses.push(`descripcion=$${idx++}`); values.push(description); }
+  if (price !== undefined)       { setClauses.push(`precio=$${idx++}`);      values.push(price); }
+  if (stock !== undefined)       { setClauses.push(`stock=$${idx++}`);       values.push(stock); }
+
+  if (setClauses.length === 0) return null;
+
+  setClauses.push('fecha_actualizacion=CURRENT_TIMESTAMP');
+  values.push(id);
+
   const { rows } = await db.query(
     `UPDATE ecommerce.producto
-     SET nombre=$1, descripcion=$2, precio=$3, stock=$4, fecha_actualizacion=CURRENT_TIMESTAMP
-     WHERE id_producto=$5
-     RETURNING id_producto AS id, nombre, descripcion, precio, stock`,
-    [name, description, price, stock, id]
+     SET ${setClauses.join(', ')}
+     WHERE id_producto=$${idx}
+     RETURNING id_producto AS id, nombre AS name, descripcion AS description, precio::float AS price, stock::int AS stock`,
+    values
   );
   if (!rows[0]) return null;
 
