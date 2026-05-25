@@ -73,7 +73,7 @@ Antes de empezar necesitas tener instalados estos programas. Si ya los tienes pu
 5. Verifica que quedó bien ejecutando:
 ```bash
 node --version
-npm --version
+pnpm --version
 ```
 Deberías ver algo como `v20.x.x` y `10.x.x`.
 
@@ -205,7 +205,7 @@ END $$;
 Abre una terminal en la carpeta `backend/` y ejecuta:
 
 ```bash
-npm install
+pnpm install
 ```
 
 ---
@@ -213,7 +213,7 @@ npm install
 ### Paso 5 — Lanzar el servidor
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 Si todo está bien verás en la terminal:
@@ -250,11 +250,11 @@ Esto es un error de CORS. Ocurre cuando el frontend corre en una dirección que 
 CORS_ORIGIN=http://localhost:3000,http://localhost:5000,http://127.0.0.1:5500,http://localhost:5500
 ```
 
-Luego reinicia el servidor con `Ctrl+C` y vuelve a ejecutar `npm run dev`.
+Luego reinicia el servidor con `Ctrl+C` y vuelve a ejecutar `pnpm run dev`.
 
-**Error: "npm no se reconoce como comando"**
+**Error: "pnpm no se reconoce como comando"**
 
-Node.js no está instalado o no se agregó al PATH. Reinstálalo desde [https://nodejs.org](https://nodejs.org) y reinicia la terminal.
+Instala pnpm con: `npm install -g pnpm` o descárgalo desde [https://pnpm.io](https://pnpm.io) y reinicia la terminal.
 
 **Error de conexión a PostgreSQL**
 

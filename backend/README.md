@@ -4,7 +4,7 @@
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Create .env file from template
 cp .env.example .env
@@ -14,10 +14,10 @@ cp .env.example .env
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 # Run development server
-npm run dev
+pnpm run dev
 
 # Run production server
-npm start
+pnpm start
 ```
 
 ## Project Structure
@@ -140,13 +140,13 @@ const result = await db.query(
 
 ```bash
 # Run tests
-npm test
+pnpm test
 
 # Run with coverage
-npm run test:coverage
+pnpm run test:coverage
 
 # Run security checks
-npm run security:check
+pnpm run security:check
 ```
 
 ## Logging
