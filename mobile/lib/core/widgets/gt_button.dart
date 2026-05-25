@@ -9,16 +9,18 @@ class GtButton extends StatelessWidget {
     required this.label,
     this.onTap,
     this.variant = GtButtonVariant.primary,
+    this.loading = false,
   });
 
   final String label;
   final VoidCallback? onTap;
   final GtButtonVariant variant;
+  final bool loading;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: loading ? null : onTap,
       child: Container(
         height: 46,
         decoration: BoxDecoration(
@@ -29,16 +31,22 @@ class GtButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         alignment: Alignment.center,
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: variant == GtButtonVariant.secondary
-                ? AppColors.lavender
-                : AppColors.white,
-          ),
-        ),
+        child: loading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+              )
+            : Text(
+                label,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: variant == GtButtonVariant.secondary
+                      ? AppColors.lavender
+                      : AppColors.white,
+                ),
+              ),
       ),
     );
   }

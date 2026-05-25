@@ -1,10 +1,78 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/services/auth_service.dart';
+import '../../../core/services/product_service.dart';
 import '../widgets/client_bottom_nav.dart';
 
-class ClientHomeScreen extends StatelessWidget {
+class ClientHomeScreen extends StatefulWidget {
   const ClientHomeScreen({super.key});
+
+  @override
+  State<ClientHomeScreen> createState() => _ClientHomeScreenState();
+}
+
+class _ClientHomeScreenState extends State<ClientHomeScreen> {
+  List<Map<String, dynamic>> _products = [];
+  List<Map<String, dynamic>> _filtered = [];
+  String _userName = '';
+  bool _loading = true;
+  String? _error;
+  String _selectedCategory = 'Todo';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final results = await Future.wait([
+        ProductService.getProducts(),
+        AuthService.getUser(),
+      ]);
+      final products = results[0] as List<Map<String, dynamic>>;
+      final user = results[1] as Map<String, dynamic>?;
+      if (!mounted) return;
+      setState(() {
+        _products = products;
+        _filtered = products;
+        _userName = user?['nombre'] as String? ?? 'Usuario';
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString().replaceFirst('Exception: ', '');
+        _loading = false;
+      });
+    }
+  }
+
+  void _filterByCategory(String cat) {
+    setState(() {
+      _selectedCategory = cat;
+      _filtered = cat == 'Todo'
+          ? _products
+          : _products.where((p) => (p['category'] as String? ?? '') == cat).toList();
+    });
+  }
+
+  List<String> get _categories {
+    final cats = _products.map((p) => p['category'] as String? ?? '').where((c) => c.isNotEmpty).toSet().toList();
+    return ['Todo', ...cats];
+  }
+
+  Future<void> _logout() async {
+    await AuthService.clearSession();
+    if (!mounted) return;
+    context.go('/login');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,48 +82,71 @@ class ClientHomeScreen extends StatelessWidget {
         child: Column(
           children: [
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text('Hola, María 👋',
-                                style: TextStyle(fontSize: 12, color: AppColors.lavender)),
-                            SizedBox(height: 2),
-                            Text('¿Qué buscas hoy?',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.white)),
-                          ],
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator(color: AppColors.violet))
+                  : _error != null
+                      ? _ErrorView(message: _error!, onRetry: _loadData)
+                      : SingleChildScrollView(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Hola, $_userName',
+                                          style: const TextStyle(fontSize: 12, color: AppColors.lavender)),
+                                      const SizedBox(height: 2),
+                                      const Text('¿Qué buscas hoy?',
+                                          style: TextStyle(
+                                              fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.white)),
+                                    ],
+                                  ),
+                                  _LogoutBtn(onTap: _logout),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              const SizedBox(height: 16),
+                              const Text('Categorías',
+                                  style: TextStyle(
+                                      fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.lavender)),
+                              const SizedBox(height: 10),
+                              _CategoryChips(
+                                categories: _categories,
+                                selected: _selectedCategory,
+                                onSelect: _filterByCategory,
+                              ),
+                              const SizedBox(height: 16),
+                              Text('Productos (${_filtered.length})',
+                                  style: const TextStyle(
+                                      fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.lavender)),
+                              const SizedBox(height: 10),
+                              _filtered.isEmpty
+                                  ? const Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(24),
+                                        child: Text('No hay productos disponibles',
+                                            style: TextStyle(color: AppColors.gray, fontSize: 13)),
+                                      ),
+                                    )
+                                  : GridView.builder(
+                                      shrinkWrap: true,
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 2,
+                                        mainAxisSpacing: 10,
+                                        crossAxisSpacing: 10,
+                                        childAspectRatio: 1.1,
+                                      ),
+                                      itemCount: _filtered.length,
+                                      itemBuilder: (_, i) => _ProductCard(product: _filtered[i]),
+                                    ),
+                            ],
+                          ),
                         ),
-                        Row(
-                          children: [
-                            _IconBtn(icon: Icons.notifications_none_rounded, onTap: () {}),
-                            const SizedBox(width: 8),
-                            _LogoutBtn(onTap: () => context.go('/login')),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    _SearchBar(),
-                    const SizedBox(height: 16),
-                    const Text('Categorías',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.lavender)),
-                    const SizedBox(height: 10),
-                    _CategoryChips(),
-                    const SizedBox(height: 16),
-                    const Text('Destacados',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.lavender)),
-                    const SizedBox(height: 10),
-                    _ProductsGrid(),
-                  ],
-                ),
-              ),
             ),
             ClientBottomNav(currentIndex: 0, onTap: (i) {
               if (i == 2) context.go('/client/cart');
@@ -67,50 +158,40 @@ class ClientHomeScreen extends StatelessWidget {
   }
 }
 
-class _SearchBar extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 44,
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      child: Row(
-        children: const [
-          Icon(Icons.search_rounded, color: AppColors.lavender, size: 18),
-          SizedBox(width: 10),
-          Text('Buscar productos...', style: TextStyle(color: AppColors.gray, fontSize: 13)),
-        ],
-      ),
-    );
-  }
-}
-
 class _CategoryChips extends StatelessWidget {
-  final List<String> _cats = const ['Todo', 'Electrónica', 'Audio', 'Accesorios'];
+  const _CategoryChips({
+    required this.categories,
+    required this.selected,
+    required this.onSelect,
+  });
+
+  final List<String> categories;
+  final String selected;
+  final ValueChanged<String> onSelect;
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: _cats.asMap().entries.map((e) {
-          final active = e.key == 0;
-          return Container(
-            margin: const EdgeInsets.only(right: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-            decoration: BoxDecoration(
-              color: active ? AppColors.purple : AppColors.surface,
-              borderRadius: BorderRadius.circular(20),
-              border: active ? null : Border.all(color: AppColors.border),
+        children: categories.map((cat) {
+          final active = cat == selected;
+          return GestureDetector(
+            onTap: () => onSelect(cat),
+            child: Container(
+              margin: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              decoration: BoxDecoration(
+                color: active ? AppColors.purple : AppColors.surface,
+                borderRadius: BorderRadius.circular(20),
+                border: active ? null : Border.all(color: AppColors.border),
+              ),
+              child: Text(cat,
+                  style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: active ? AppColors.white : AppColors.lavender)),
             ),
-            child: Text(e.value,
-                style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    color: active ? AppColors.white : AppColors.lavender)),
           );
         }).toList(),
       ),
@@ -118,34 +199,15 @@ class _CategoryChips extends StatelessWidget {
   }
 }
 
-class _ProductsGrid extends StatelessWidget {
-  final List<_ProductData> _products = const [
-    _ProductData('Audífonos Pro', '\$89.99', Icons.headphones_rounded),
-    _ProductData('Smartwatch X', '\$149.99', Icons.watch_rounded),
-    _ProductData('Cable USB-C', '\$12.99', Icons.usb_rounded),
-    _ProductData('Mouse Inalámbrico', '\$45.99', Icons.mouse_rounded),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      mainAxisSpacing: 10,
-      crossAxisSpacing: 10,
-      childAspectRatio: 1.1,
-      children: _products.map((p) => _ProductCard(data: p)).toList(),
-    );
-  }
-}
-
 class _ProductCard extends StatelessWidget {
-  const _ProductCard({required this.data});
-  final _ProductData data;
+  const _ProductCard({required this.product});
+  final Map<String, dynamic> product;
 
   @override
   Widget build(BuildContext context) {
+    final name = product['name'] as String? ?? '';
+    final price = product['price'];
+    final stock = product['stock'] as int? ?? 0;
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -162,32 +224,60 @@ class _ProductCard extends StatelessWidget {
                 gradient: AppColors.gradientCard,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Center(child: Icon(data.icon, size: 28, color: AppColors.lavender)),
+              child: const Center(
+                child: Icon(Icons.devices_rounded, size: 28, color: AppColors.lavender),
+              ),
             ),
           ),
           const SizedBox(height: 8),
-          Text(data.name, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.white)),
-          Text(data.price, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.rose)),
+          Text(name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.white)),
+          Text('\$${price?.toStringAsFixed(2) ?? '0.00'}',
+              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.rose)),
+          if (stock == 0)
+            const Text('Sin stock',
+                style: TextStyle(fontSize: 10, color: AppColors.gray)),
         ],
       ),
     );
   }
 }
 
-class _IconBtn extends StatelessWidget {
-  const _IconBtn({required this.icon, required this.onTap});
-  final IconData icon;
-  final VoidCallback onTap;
+class _ErrorView extends StatelessWidget {
+  const _ErrorView({required this.message, required this.onRetry});
+  final String message;
+  final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 34,
-        height: 34,
-        decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(10)),
-        child: Icon(icon, size: 18, color: AppColors.lavender),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.wifi_off_rounded, size: 48, color: AppColors.gray),
+            const SizedBox(height: 12),
+            Text(message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: AppColors.gray, fontSize: 13)),
+            const SizedBox(height: 16),
+            GestureDetector(
+              onTap: onRetry,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: const Text('Reintentar', style: TextStyle(color: AppColors.lavender, fontSize: 13)),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -208,8 +298,8 @@ class _LogoutBtn extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: const Color(0x4Dd4537e)),
         ),
-        child: Row(
-          children: const [
+        child: const Row(
+          children: [
             Icon(Icons.logout_rounded, size: 14, color: AppColors.rose),
             SizedBox(width: 4),
             Text('Salir', style: TextStyle(fontSize: 11, color: AppColors.rose)),
@@ -218,11 +308,4 @@ class _LogoutBtn extends StatelessWidget {
       ),
     );
   }
-}
-
-class _ProductData {
-  const _ProductData(this.name, this.price, this.icon);
-  final String name;
-  final String price;
-  final IconData icon;
 }

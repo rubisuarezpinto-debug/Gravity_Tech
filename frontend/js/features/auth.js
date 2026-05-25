@@ -267,7 +267,7 @@ async function handleRegister() {
     emailEl.classList.remove('error');
   }
 
-  if (passwordEl.value.length < 6) {
+  if (passwordEl.value.length < 8) {
     passwordEl.classList.add('error'); valid = false;
   } else {
     passwordEl.classList.remove('error');
@@ -309,15 +309,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('go-to-login')
     ?.addEventListener('click', () => { closeRegister(); openLogin(); });
 
-  document.getElementById('login-submit-btn')
-    ?.addEventListener('click', handleLogin);
-  document.getElementById('register-submit-btn')
-    ?.addEventListener('click', handleRegister);
-
-  document.getElementById('login-password')
-    ?.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLogin(); });
-  document.getElementById('register-password')
-    ?.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleRegister(); });
+  // Nota: login.html y register.html manejan sus propios botones de submit
+  // con onclick para evitar que se llame el handler dos veces.
 
   updateHeaderAuth();
 });

@@ -4,8 +4,31 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/gt_button.dart';
 import '../../../core/widgets/gt_input.dart';
 
-class ForgotPasswordScreen extends StatelessWidget {
+class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
+
+  @override
+  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+}
+
+class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  final _emailCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailCtrl.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Esta función no está disponible aún. Contacta al soporte.'),
+        backgroundColor: Color(0xFF4c2f9e),
+        duration: Duration(seconds: 3),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,10 +94,14 @@ class ForgotPasswordScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              const GtInput(hint: 'Correo electrónico', icon: Icons.mail_outline_rounded,
-                  keyboardType: TextInputType.emailAddress),
+              GtInput(
+                hint: 'Correo electrónico',
+                icon: Icons.mail_outline_rounded,
+                keyboardType: TextInputType.emailAddress,
+                controller: _emailCtrl,
+              ),
               const SizedBox(height: 24),
-              GtButton(label: 'Continuar', onTap: () => context.push('/verify')),
+              GtButton(label: 'Continuar', onTap: _submit),
               const SizedBox(height: 24),
               Container(
                 padding: const EdgeInsets.all(16),
@@ -83,14 +110,16 @@ class ForgotPasswordScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(color: AppColors.border),
                 ),
-                child: Column(
+                child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text('Flujo continúa:',
+                  children: [
+                    Text('Próximamente:',
                         style: TextStyle(fontSize: 12, color: AppColors.lavender, fontWeight: FontWeight.w500)),
                     SizedBox(height: 8),
-                    Text('1. Ingresar correo\n2. Recibir código\n3. Validar código\n4. Nueva contraseña',
-                        style: TextStyle(fontSize: 11, color: AppColors.gray, height: 1.7)),
+                    Text(
+                      'La recuperación de contraseña por correo electrónico estará disponible en una próxima versión.',
+                      style: TextStyle(fontSize: 11, color: AppColors.gray, height: 1.7),
+                    ),
                   ],
                 ),
               ),

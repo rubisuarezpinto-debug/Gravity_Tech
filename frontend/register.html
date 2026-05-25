@@ -39,7 +39,7 @@
       <div class="auth-field">
         <label for="register-password">Contraseña</label>
         <input type="password" id="register-password" placeholder="••••••••" autocomplete="new-password">
-        <span class="field-error">Mínimo 6 caracteres.</span>
+        <span class="field-error">Mínimo 8 caracteres.</span>
       </div>
 
       <button class="auth-submit-btn" id="register-submit-btn">Registrarse</button>
@@ -59,18 +59,20 @@
 
   <script src="js/core/config.js"></script>
   <script src="js/core/utils.js"></script>
-  <script src="js/core/api.js"></script>
   <script src="js/features/auth.js"></script>
+  <script src="js/core/api.js"></script>
   <script>
-    const originalHandleRegister = handleRegister;
-    window.handleRegister = async () => {
-      await originalHandleRegister();
+    // Un solo handler: llamar register y redirigir si es exitoso
+    async function doRegister() {
+      await handleRegister();
       if (auth.isLoggedIn()) {
         window.location.href = 'index.html';
       }
+    }
+    document.getElementById('register-submit-btn').onclick = doRegister;
+    document.getElementById('register-password').onkeydown = (e) => {
+      if (e.key === 'Enter') doRegister();
     };
-    
-    document.getElementById('register-submit-btn').onclick = window.handleRegister;
   </script>
 </body>
 </html>

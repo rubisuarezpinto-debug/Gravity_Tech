@@ -1,17 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/services/auth_service.dart';
+import '../../../core/services/product_service.dart';
 import '../../../core/widgets/gt_stat_card.dart';
 import '../widgets/worker_bottom_nav.dart';
 
-class WorkerHomeScreen extends StatelessWidget {
+class WorkerHomeScreen extends StatefulWidget {
   const WorkerHomeScreen({super.key});
 
-  static const _alerts = [
-    _StockAlert('Audífonos Pro', '2 unidades'),
-    _StockAlert('Cable HDMI 4K', '1 unidad'),
-    _StockAlert('Cargador Inalámbrico', '3 unidades'),
-  ];
+  @override
+  State<WorkerHomeScreen> createState() => _WorkerHomeScreenState();
+}
+
+class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
+  List<Map<String, dynamic>> _lowStock = [];
+  int _totalProducts = 0;
+  String _userName = '';
+  bool _loading = true;
+  String? _error;
+
+  static const _lowStockThreshold = 5;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final results = await Future.wait([
+        ProductService.getProducts(),
+        AuthService.getUser(),
+      ]);
+      final products = results[0] as List<Map<String, dynamic>>;
+      final user = results[1] as Map<String, dynamic>?;
+      if (!mounted) return;
+      setState(() {
+        _totalProducts = products.length;
+        _lowStock = products
+            .where((p) => (p['stock'] as int? ?? 0) < _lowStockThreshold)
+            .toList();
+        _userName = user?['nombre'] as String? ?? 'Trabajador';
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString().replaceFirst('Exception: ', '');
+        _loading = false;
+      });
+    }
+  }
+
+  Future<void> _logout() async {
+    await AuthService.clearSession();
+    if (!mounted) return;
+    context.go('/login');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,35 +72,71 @@ class WorkerHomeScreen extends StatelessWidget {
         child: Column(
           children: [
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('Panel Trabajador',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.white)),
-                        _LogoutBtn(onTap: () => context.go('/login')),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(child: GtStatCard(label: 'Productos', value: '142')),
-                        const SizedBox(width: 10),
-                        Expanded(child: GtStatCard(label: 'Stock bajo', value: '8', valueColor: AppColors.rose)),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    const Text('Alertas de inventario',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.lavender)),
-                    const SizedBox(height: 10),
-                    ..._alerts.map((a) => _StockAlertTile(alert: a)),
-                  ],
-                ),
-              ),
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator(color: AppColors.violet))
+                  : _error != null
+                      ? _ErrorView(message: _error!, onRetry: _loadData)
+                      : RefreshIndicator(
+                          onRefresh: _loadData,
+                          color: AppColors.violet,
+                          child: SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text('Panel Trabajador',
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w500,
+                                                color: AppColors.white)),
+                                        Text('Hola, $_userName',
+                                            style: const TextStyle(fontSize: 12, color: AppColors.lavender)),
+                                      ],
+                                    ),
+                                    _LogoutBtn(onTap: _logout),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                        child: GtStatCard(
+                                            label: 'Productos',
+                                            value: '$_totalProducts')),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                        child: GtStatCard(
+                                            label: 'Stock bajo',
+                                            value: '${_lowStock.length}',
+                                            valueColor: _lowStock.isNotEmpty ? AppColors.rose : null)),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                const Text('Alertas de inventario',
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors.lavender)),
+                                const SizedBox(height: 10),
+                                if (_lowStock.isEmpty)
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 12),
+                                    child: Text('Sin alertas de inventario',
+                                        style: TextStyle(fontSize: 13, color: AppColors.gray)),
+                                  )
+                                else
+                                  ..._lowStock.map((p) => _StockAlertTile(product: p)),
+                              ],
+                            ),
+                          ),
+                        ),
             ),
             WorkerBottomNav(currentIndex: 0, onTap: (i) {
               if (i == 1) context.go('/worker/products');
@@ -62,11 +149,13 @@ class WorkerHomeScreen extends StatelessWidget {
 }
 
 class _StockAlertTile extends StatelessWidget {
-  const _StockAlertTile({required this.alert});
-  final _StockAlert alert;
+  const _StockAlertTile({required this.product});
+  final Map<String, dynamic> product;
 
   @override
   Widget build(BuildContext context) {
+    final name = product['name'] as String? ?? '';
+    final stock = product['stock'] as int? ?? 0;
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -78,13 +167,17 @@ class _StockAlertTile extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(alert.name,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.white)),
-              Text(alert.qty, style: const TextStyle(fontSize: 11, color: AppColors.gray)),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.white)),
+                Text('$stock unidades', style: const TextStyle(fontSize: 11, color: AppColors.gray)),
+              ],
+            ),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -93,7 +186,10 @@ class _StockAlertTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: const Color(0x66d4537e)),
             ),
-            child: const Text('Stock bajo', style: TextStyle(fontSize: 10, color: AppColors.rose)),
+            child: Text(
+              stock == 0 ? 'Sin stock' : 'Stock bajo',
+              style: const TextStyle(fontSize: 10, color: AppColors.rose),
+            ),
           ),
         ],
       ),
@@ -116,8 +212,8 @@ class _LogoutBtn extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: const Color(0x4Dd4537e)),
         ),
-        child: Row(
-          children: const [
+        child: const Row(
+          children: [
             Icon(Icons.logout_rounded, size: 14, color: AppColors.rose),
             SizedBox(width: 4),
             Text('Salir', style: TextStyle(fontSize: 11, color: AppColors.rose)),
@@ -128,8 +224,40 @@ class _LogoutBtn extends StatelessWidget {
   }
 }
 
-class _StockAlert {
-  const _StockAlert(this.name, this.qty);
-  final String name;
-  final String qty;
+class _ErrorView extends StatelessWidget {
+  const _ErrorView({required this.message, required this.onRetry});
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.wifi_off_rounded, size: 48, color: AppColors.gray),
+            const SizedBox(height: 12),
+            Text(message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: AppColors.gray, fontSize: 13)),
+            const SizedBox(height: 16),
+            GestureDetector(
+              onTap: onRetry,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: const Text('Reintentar', style: TextStyle(color: AppColors.lavender, fontSize: 13)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

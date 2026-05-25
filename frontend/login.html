@@ -54,21 +54,19 @@
 
   <script src="js/core/config.js"></script>
   <script src="js/core/utils.js"></script>
-  <script src="js/core/api.js"></script>
   <script src="js/features/auth.js"></script>
+  <script src="js/core/api.js"></script>
   <script>
-    // Sobrescribir el comportamiento de redirección tras login exitoso
-    const originalHandleLogin = handleLogin;
-    window.handleLogin = async () => {
-      await originalHandleLogin();
+    // Un solo handler: llamar login y redirigir si es exitoso
+    async function doLogin() {
+      await handleLogin();
       if (auth.isLoggedIn()) {
         window.location.href = 'index.html';
       }
-    };
-    
-    document.getElementById('login-submit-btn').onclick = window.handleLogin;
+    }
+    document.getElementById('login-submit-btn').onclick = doLogin;
     document.getElementById('login-password').onkeydown = (e) => {
-      if (e.key === 'Enter') window.handleLogin();
+      if (e.key === 'Enter') doLogin();
     };
   </script>
 </body>
