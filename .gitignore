@@ -92,3 +92,4 @@ $RECYCLE.BIN/
 *.tmp
 *.temp
 .cache/
+backend/database/all_actual.sql
