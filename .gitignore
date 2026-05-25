@@ -1,7 +1,7 @@
 # ═══════════════════════════════════════════════════════════════════════════
 # SECURITY: Never commit sensitive files
 # ═══════════════════════════════════════════════════════════════════════════
-
+mobile/.firebase/
 # Dependencias de Node
 node_modules/
 .npm
