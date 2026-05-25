@@ -102,9 +102,9 @@ const update = async (id, { name, description, price, stock, image_url }) => {
   const product = rows[0];
   if (image_url) {
     await db.query(
-      `INSERT INTO ecommerce.imagen (id_producto, url) 
+      `INSERT INTO ecommerce.imagen (id_producto, url)
        VALUES ($1, $2)
-       ON CONFLICT DO UPDATE SET url = EXCLUDED.url`,
+       ON CONFLICT (id_producto) DO UPDATE SET url = EXCLUDED.url`,
       [id, image_url]
     );
     product.image_url = image_url;

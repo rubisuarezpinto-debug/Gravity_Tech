@@ -25,3 +25,22 @@ BEGIN
       UNIQUE (id_carrito, id_producto);
   END IF;
 END $$;
+
+-- ── Migración 002 ─────────────────────────────────────────
+-- UNIQUE en imagen(id_producto) requerido por el ON CONFLICT de Product.js
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'uq_imagen_producto'
+  ) THEN
+    -- Eliminar duplicados si existen antes de agregar el constraint
+    DELETE FROM ecommerce.imagen a
+    USING ecommerce.imagen b
+    WHERE a.id_imagen > b.id_imagen
+      AND a.id_producto = b.id_producto;
+
+    ALTER TABLE ecommerce.imagen
+      ADD CONSTRAINT uq_imagen_producto UNIQUE (id_producto);
+  END IF;
+END $$;

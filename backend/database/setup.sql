@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS ecommerce.producto_categoria (
 
 CREATE TABLE IF NOT EXISTS ecommerce.imagen (
     id_imagen SERIAL PRIMARY KEY,
-    id_producto INTEGER NOT NULL,
+    id_producto INTEGER NOT NULL UNIQUE,
     url VARCHAR(500) NOT NULL,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -256,7 +256,7 @@ INSERT INTO ecommerce.metodo_pago (nombre) VALUES
 -- Hashes bcrypt cost=12. Para regenerarlos con tu propia contraseña:
 --   node -e "const b=require('bcryptjs'); b.hash('TuPass123',12).then(console.log)"
 INSERT INTO ecommerce.usuario (nombre, email, password_hash, rol) VALUES
-  ('Admin Store',     'admin@gravitytech.com',   '$2b$12$/8LQP4qDk6d0Dx4P8PNXFu5ZVH0gpyhcPw.5O5.rycv3p7HFc1Vk2', 'admin'),
+  ('Admin Store',     'admin@gravitytech.com',   '$2b$12$/8LQP4qDk6d0Dx4P8PNXFu5ZVH0gpyhcPw.5O5.rycv3p7HFc1Vk2', 'administrador'),
   ('Cliente Demo',    'cliente@gravitytech.com', '$2b$12$SQFzC/nt0p3zzYt4jREeKuiCV.kbHuv8S6vcDQSmTj93hsWivzYIO', 'cliente'),
   ('Trabajador Demo', 'worker@gravitytech.com',  '$2b$12$5hcrdMSdnclLSo6RM1K1Q.7gspSJvcQE0AlmibV3GMdO0DG3H7UDu', 'trabajador')
 ON CONFLICT (email) DO NOTHING;

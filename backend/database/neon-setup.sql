@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS ecommerce.producto_categoria (
 
 CREATE TABLE IF NOT EXISTS ecommerce.imagen (
     id_imagen SERIAL PRIMARY KEY,
-    id_producto INTEGER NOT NULL,
+    id_producto INTEGER NOT NULL UNIQUE,
     url VARCHAR(500) NOT NULL,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
